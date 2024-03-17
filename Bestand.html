@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bestandsliste</title>
+
+  <link rel="stylesheet" href="css/bestand.css">
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="reader"></div>
+    <div id="result"></div>
+  </div>
+
+  <div class="bestand-container">
+    <button class="scanning-btn">Start scanning</button>
+    <table id="bestandTable">
+      <thead>
+        <tr>
+          <th>Produkt</th>
+          <th>Menge</th>
+          <th></th> <!-- Leere Zelle für die Buttons -->
+          <th></th> <!-- Leere Zelle für die Buttons -->
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Hier werden die Daten dynamisch hinzugefügt -->
+      </tbody>
+    </table>
+  </div>
+  
+  <script type="module" src="js/bestand.js"></script>
+</body>
+</html>
