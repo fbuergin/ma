@@ -120,7 +120,7 @@ const axios = require('axios');
 
 const app = express();
 
-dotenv.config({
+dotenv, config({
   path: 'config.env'
 });
 
