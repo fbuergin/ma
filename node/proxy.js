@@ -119,7 +119,12 @@ const cors = require('cors'); // Importiere die cors Middleware
 const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+dotenv.config({
+  path: 'config.env'
+});
+
+const PORT = process.env.PORT || 'https://einkaufsmeister.onrender.com';
 
 // Verwende die cors Middleware
 app.use(cors());
