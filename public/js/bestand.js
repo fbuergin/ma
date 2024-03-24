@@ -1,4 +1,4 @@
-import { fetchProductData, error } from "../../databaseConnection.js";
+import { fetchProductData, error } from "./databaseConnection.js";
 
 let bestand = [{
   description: 'tomate',
