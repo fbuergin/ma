@@ -117,6 +117,7 @@ fetch('http://localhost:5501/logs') // Beispiel URL, ersetze 3000 durch den tats
 const express = require('express');
 const cors = require('cors'); // Importiere die cors Middleware
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 
