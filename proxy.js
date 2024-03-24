@@ -156,3 +156,6 @@ app.get('/product/:upc', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Der Server läuft auf Port ${PORT}`);
 });
+
+// Middleware, um das Laden von favicon.ico zu unterdrücken
+app.get('/favicon.ico', (req, res) => res.status(204));
