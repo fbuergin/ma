@@ -123,6 +123,9 @@ const app = express();
 
 const PORT = process.env.PORT || 10000;
 
+// Statische Dateien im "public" Verzeichnis servieren
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Verwende die cors Middleware
 app.use(cors());
 
