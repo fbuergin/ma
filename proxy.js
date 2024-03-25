@@ -132,10 +132,14 @@ app.use(cors());
 
 app.use(express.json());
 
+
+
 // Route für die Wurzel-URL
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+
 
 
 // Proxy-Endpunkt für den Produktabruf

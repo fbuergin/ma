@@ -1,6 +1,6 @@
 export async function fetchProductData(upc) {
   try {
-    const response = await fetch(`https://einkaufsmeister.onrender.com/${upc}`);
+    const response = await fetch(`https://einkaufsmeister.onrender.com/product/${upc}`);
     if (!response.ok) {
       throw new Error('Fehler beim Abrufen der Daten');
     }
