@@ -37,6 +37,7 @@ function loadBestandFromLocalStorage() {
 
 
 
+/*
 //scanner
 
 let scanner = false;
@@ -74,14 +75,14 @@ function success(result) {
     document.getElementById('reader').remove();
     getProduktData(result);
 }
+*/
 
 
-/*
 //damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
 document.querySelector('.scanning-btn').addEventListener('click', () => {
   getProduktData('4005808705481');
 });
-*/
+
 
 
 let neuesProdukt = '';
