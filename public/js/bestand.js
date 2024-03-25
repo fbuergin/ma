@@ -64,12 +64,7 @@ function initializeScanner() {
 }
 
 function success(result) {
-    document.getElementById('result').innerHTML = `
-    <h2>Erfolgreich gescannt</h2>
-    <p><a href="${result}">${result}</a></p>
-    <br><br>
-    <a href="index.html">Nochmal scannen</a>
-    `;
+    document.querySelector('.nochmals-scannen-btn').style.display = "block"; 
     
     scanner.clear();
     document.getElementById('reader').remove();
