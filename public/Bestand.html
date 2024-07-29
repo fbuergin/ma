@@ -6,33 +6,50 @@
   <title>Bestandsliste</title>
 
   <link rel="stylesheet" href="css/bestand.css">
+  <link rel="stylesheet" href="css/styles.css">
 
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
-  <div class="container">
-    <div id="reader"></div>
-    <div id="result"></div>
-  </div>
+  <header>
+    <h1>Bestandsliste</h1>
+  </header>
+  <nav>
+      <ul>
+          <li><a href="index.html">Zurück zur Startseite</a></li>
+          <li><a href="Einkaufsliste.html">Einkaufsliste</a></li>
+          <li><a href="Verbrauch.html">Wochenverbrauch</a></li>
+          <li><a href="Menüplan.html">Menüplan</a></li>
 
-  <div class="bestand-container">
-    <button class="scanning-btn">Start scanning</button>
-    <button class="nochmals-scannen-btn">Nochmals scannen</button>
-    <table id="bestandTable">
-      <thead>
-        <tr>
-          <th>Produkt</th>
-          <th>Menge</th>
-          <th></th> <!-- Leere Zelle für die Buttons -->
-          <th></th> <!-- Leere Zelle für die Buttons -->
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Hier werden die Daten dynamisch hinzugefügt -->
-      </tbody>
-    </table>
-  </div>
+      </ul>
+  </nav>
+  <main>
+    <div class="container">
+      <div id="reader"></div>
+      <div id="result"></div>
+    </div>
   
+    <div class="bestand-container">
+      <button class="scanning-btn">Start scanning</button>
+      <button class="nochmals-scannen-btn">Nochmals scannen</button>
+  
+      <table id="bestandTable">
+        <thead>
+          <tr>
+            <th>Produkt</th>
+            <th>Menge</th>
+            <th></th> <!-- Leere Zelle für die Buttons -->
+            <th></th> <!-- Leere Zelle für die Buttons -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Hier werden die Daten dynamisch hinzugefügt -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+ 
   <script type="module" src="js/bestand.js"></script>
 </body>
 </html>

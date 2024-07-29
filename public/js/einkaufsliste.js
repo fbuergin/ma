@@ -15,13 +15,14 @@ function success(result){
   <br><br>
   <a href="index.html">nochmal scannen</a>
       `;
-      scanner.clear();
-
-      document.getElementById('reader').remove();
+  scanner.clear();
+  document.getElementById('reader').remove();
 
 }
 
 function error(err){
   //console.error(err);
 }
+
+
 

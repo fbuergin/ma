@@ -1,43 +1,39 @@
 import { fetchProductData, error } from "./databaseConnection.js";
 
+let verbrauch = [];
 
-export let bestand = [];
-
-// Laden des Bestands aus dem Local Storage
-function loadBestandFromLocalStorage() {
-  const bestandData = localStorage.getItem('bestand');
-  if (bestandData) {
-    bestand = JSON.parse(bestandData);
+// Laden des verbrauchs aus dem Local Storage
+function loadVerbrauchFromLocalStorage() {
+  const verbrauchData = localStorage.getItem('verbrauch');
+  if (verbrauchData) {
+    verbrauch = JSON.parse(verbrauchData);
   } else {
-    bestand = [{
+    verbrauch = [{
       description: 'tomate',
-      menge: 2,
+      menge: 1,
       barcode:'100'
     }, {
-      description: 'apfel',
-      menge: 1,
-      barcode:'101'
+      description: 'birne',
+      menge: 2,
+      barcode:'102'
     }];
-    saveBestandToLocalStorage();
+    saveVerbrauchToLocalStorage();
   }
 }
 
 window.onload = function() {
-  loadBestandFromLocalStorage();
-  renderBestandHtml();
+  loadVerbrauchFromLocalStorage();
+  renderVerbrauchHTML();
 }
 
-// Speichern des Bestands im Local Storage
-function saveBestandToLocalStorage() {
-  localStorage.setItem('bestand', JSON.stringify(bestand));
+// Speichern des verbrauchs im Local Storage
+function saveVerbrauchToLocalStorage() {
+  localStorage.setItem('verbrauch', JSON.stringify(verbrauch));
 }
 
 
 
-
-/*
 //scanner
-
 let scanner = false;
 
 document.querySelector('.scanning-btn').addEventListener('click', () => {
@@ -75,30 +71,27 @@ function success(result) {
     
     scanner.clear();
     document.getElementById('reader').remove();
-    getProduktData(result);
-}
-*/
 
-//maybe probleme mit error function also in verbrauch.js angegeben das es das braucht
+}
+
 
 
 //damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
 document.querySelector('.scanning-btn').addEventListener('click', () => {
-  getProduktData('151212300000');
+  getProduktData('7610057030054');
 });
 
 
 
-let neuesProdukt = '';
+let neuesVerbrauchtesProdukt = '';
 
 
 async function getProduktData(result) {
   try {
     let upcCode = result;
-    neuesProdukt = await fetchProductData(upcCode); 
-    addToBestand(neuesProdukt);
-    renderBestandHtml();
-    console.log(bestand)
+    neuesVerbrauchtesProdukt = await fetchProductData(upcCode); 
+    addToVerbrauch(neuesVerbrauchtesProdukt);
+    renderVerbrauchHTML();
 
 
   } catch (error) {
@@ -109,12 +102,12 @@ async function getProduktData(result) {
 
 
 
-function renderBestandHtml() {
-  const tableBody = document.querySelector('#bestandTable tbody');
+function renderVerbrauchHTML() {
+  const tableBody = document.querySelector('#verbrauchTable tbody');
   tableBody.innerHTML = '';
 
  
-  bestand.forEach(produkt => {
+  verbrauch.forEach(produkt => {
     const row = document.createElement('tr');
     let produktName = '';
 
@@ -125,7 +118,7 @@ function renderBestandHtml() {
     } else if (produkt.title === '') {
       produktName = produkt.barcode;
     } else {
-      return false;
+      return;
     }
 
 
@@ -158,32 +151,32 @@ function renderBestandHtml() {
 }
 
 
-function addToBestand(neuesProdukt) {
-  const vorhandenesProdukt = bestand.find(produkt => produkt.barcode === neuesProdukt.barcode);
+function addToVerbrauch(neuesVerbrauchtesProdukt) {
+  const vorhandenesProdukt = verbrauch.find(produkt => produkt.barcode === neuesVerbrauchtesProdukt.barcode);
 
   if (vorhandenesProdukt) {
     vorhandenesProdukt.menge++;
   } else {
-    bestand.push(neuesProdukt);
-    neuesProdukt.menge = 1;
+    verbrauch.push(neuesVerbrauchtesProdukt);
+    neuesVerbrauchtesProdukt.menge = 1;
 
   }
-  saveBestandToLocalStorage();
-  renderBestandHtml(); 
+  saveVerbrauchToLocalStorage();
+  renderVerbrauchHTML(); 
 }
 
-function removeFromBestand(produktCode) {
-  const index = bestand.findIndex(produkt => produkt.barcode === produktCode);
+function removeFromverbrauch(produktCode) {
+  const index = verbrauch.findIndex(produkt => produkt.barcode === produktCode);
   
   if (index !== -1) {
-    if (bestand[index].menge > 1) {
-      bestand[index].menge--;
+    if (verbrauch[index].menge > 1) {
+      verbrauch[index].menge--;
     } else {
-      bestand.splice(index, 1); 
+      verbrauch.splice(index, 1); 
     }
 
-    saveBestandToLocalStorage(); 
-    renderBestandHtml();
+    saveVerbrauchToLocalStorage(); 
+    renderVerbrauchHTML();
   }
 }
 
@@ -192,14 +185,14 @@ function removeFromBestand(produktCode) {
 document.addEventListener('click', function(event) {
   if (event.target.classList.contains('plus-btn')) {
     const produktName = event.target.dataset.produkt;
-    addToBestand({description: produktName});
+    addToVerbrauch({description: produktName});
   }
 });
 
 document.addEventListener('click', function(event) {
   if (event.target.classList.contains('minus-btn')) {
     const produktName = event.target.dataset.produkt;
-    removeFromBestand(produktName);
+    removeFromverbrauch(produktName);
   }
 });
 */
@@ -211,18 +204,18 @@ let timeoutId;
 document.addEventListener('mousedown', function(event) {
   if (event.target.classList.contains('plus-btn')) {
     const produktCode = event.target.dataset.produktCode;
-    addToBestand({barcode: produktCode});
+    addToVerbrauch({barcode: produktCode});
     timeoutId = setTimeout(function() {
       intervalId = setInterval(function() {
-        addToBestand({barcode: produktCode});
+        addToVerbrauch({barcode: produktCode});
       }, 100); 
     }, 700); 
   } else if (event.target.classList.contains('minus-btn')) {
     const produktCode = event.target.dataset.produktCode;
-    removeFromBestand(produktCode);
+    removeFromverbrauch(produktCode);
     timeoutId = setTimeout(function() {
       intervalId = setInterval(function() {
-        removeFromBestand(produktCode);
+        removeFromverbrauch(produktCode);
       }, 100); 
     }, 700); 
   }
@@ -232,6 +225,5 @@ document.addEventListener('mouseup', function(event) {
   clearInterval(intervalId);
   clearTimeout(timeoutId);
 });
-
 
 

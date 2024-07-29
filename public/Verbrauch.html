@@ -4,8 +4,51 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wochenverbrauch</title>
+
+  <link rel="stylesheet" href="css/verbrauch.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
+  <header>
+    <h1>Wochenverbrauch</h1>
+  </header>
+  <nav>
+      <ul>
+          <li><a href="index.html">Zurück zur Startseite</a></li>
+          <li><a href="Bestand.html">Bestandsliste</a></li>
+          <li><a href="Einkaufsliste.html">Einkaufsliste</a></li>
+          <li><a href="Menüplan.html">Menüplan</a></li>
+      </ul>
+  </nav>
+  <main>
+    <div class="container">
+      <div id="reader"></div>
+      <div id="result"></div>
+    </div>
   
+    <div class="verbrauch-container">
+      <button class="scanning-btn">Start scanning</button>
+      <button class="nochmals-scannen-btn">Nochmals scannen</button>
+  
+  
+      <table id="verbrauchTable">
+        <thead>
+          <tr>
+            <th>Produkt</th>
+            <th>Menge</th>
+            <th></th> <!-- Leere Zelle für die Buttons -->
+            <th></th> <!-- Leere Zelle für die Buttons -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Hier werden die Daten dynamisch hinzugefügt -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+  
+
+  <script type="module" src="js/verbrauch.js"></script>
 </body>
 </html>

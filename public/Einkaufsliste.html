@@ -6,15 +6,31 @@
   <title>Einkaufsliste</title>
 
   <link rel="stylesheet" href="css/einkaufsliste.css">
+  <link rel="stylesheet" href="css/styles.css">
 
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
-  <div class="container">
-    <div id="reader"></div>
-    <div id="result"></div>
-  </div>
 
-<script src="js/einkaufsliste.js"></script>
+  <header>
+    <h1>Einkaufsliste</h1>
+  </header>
+  <nav>
+      <ul>
+          <li><a href="index.html">Zurück zur Startseite</a></li>
+          <li><a href="Bestand.html">Bestandsliste</a></li>
+          <li><a href="Verbrauch.html">Wochenverbrauch</a></li>
+          <li><a href="Menüplan.html">Menüplan</a></li>
+
+      </ul>
+  </nav>
+  <main>
+    <div class="container">
+      <div id="reader"></div>
+      <div id="result"></div>
+    </div>  
+  </main>
+  
+  <script src="js/einkaufsliste.js"></script>
 </body>
 </html>

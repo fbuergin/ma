@@ -1,11 +1,16 @@
 export async function fetchProductData(upc) {
   try {
-    const response = await fetch(`https://einkaufsmeister.onrender.com/product/${upc}`);
+    const response = await fetch(`http://localhost:10000/product/${upc}`);
     if (!response.ok) {
       throw new Error('Fehler beim Abrufen der Daten');
     }
     const data = await response.json();
     console.log('Empfangene Daten:', data);
+
+    if (data.success === false) {
+      alert('Produkt mit diesem Barcode konnte nicht in der Datenbank gefunden werden. Daher ist kein Eintrag in die Bestandsliste möglich');
+    }
+
     // Weitere Verarbeitung der empfangenen Daten hier, falls erforderlich
     return data;
   } catch (error) {

@@ -1,0 +1,53 @@
+/* styles.css */
+
+/* Allgemeine Stile für den Header */
+header {
+  background-color: #4CAF50; /* Hintergrundfarbe */
+  color: #fff; /* Textfarbe */
+  padding: 20px; /* Innenabstand */
+  text-align: center; /* Zentrierte Ausrichtung des Textes */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Schatten-Effekt */
+}
+
+/* Stile für den Titel im Header */
+header h1 {
+  margin: 0; /* Kein Außenabstand */
+  font-size: 24px; /* Schriftgröße */
+  font-weight: bold; /* Fett gedruckte Schrift */
+}
+
+/* Hauptbereich */
+main {
+  margin: 20px;
+}
+
+/* Stile für die Tabelle */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+/* Stile für die Input-Felder */
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
