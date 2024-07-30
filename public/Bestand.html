@@ -5,51 +5,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bestandsliste</title>
 
-  <link rel="stylesheet" href="css/bestand.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <link href="./output.css" rel="stylesheet">
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link href="./css/bestand.css" rel="stylesheet">
+
+
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
 </head>
-<body>
-  <header>
+<body class="bg-c1">
+  <header class="flex justify-evenly items-center fixed top-0 h-14 w-full bg-c1 text-white border-b">
     <h1>Bestandsliste</h1>
   </header>
-  <nav>
-      <ul>
-          <li><a href="index.html">Zurück zur Startseite</a></li>
-          <li><a href="Einkaufsliste.html">Einkaufsliste</a></li>
-          <li><a href="Verbrauch.html">Wochenverbrauch</a></li>
-          <li><a href="Menüplan.html">Menüplan</a></li>
 
-      </ul>
-  </nav>
-  <main>
-    <div class="container">
-      <div id="reader"></div>
+
+
+
+  <main class=" mt-12 mb-20 m-0 p-0 ">
+    <div class="container flex justify-center items-center">
+      <div class="hidden justify-center items-center flex-col bg-c2 border-0 h-96 w-96 mt-4" id="reader">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
+      </div>
       <div id="result"></div>
     </div>
   
-    <div class="bestand-container">
-      <button class="scanning-btn">Start scanning</button>
-      <button class="nochmals-scannen-btn">Nochmals scannen</button>
-  
-      <table id="bestandTable">
-        <thead>
-          <tr>
-            <th>Produkt</th>
-            <th>Menge</th>
-            <th></th> <!-- Leere Zelle für die Buttons -->
-            <th></th> <!-- Leere Zelle für die Buttons -->
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Hier werden die Daten dynamisch hinzugefügt -->
-        </tbody>
-      </table>
+    
+    <div class="bestand-produkte-container flex flex-col justify-center items-center w-full bg-c1 text-white mt-5 px-2 pt-2">
     </div>
+
+
+    <div class="scanning-btn-container flex justify-center items-center w-full absolute bottom-16">
+      <button class="scanning-btn bg-green-400 w-28 h-28 rounded-3xl p-3.5 mb-2 hover:bg-green-600">
+        <img class="h-20 " src="bilder/barcode_scanner_FILL0_wght400_GRAD0_opsz48.png">
+      </button>
+      <button class="nochmals-scannen-btn bg-green-400 w-10/12 rounded-full mt-2 py-1">Nochmals scannen</button>
+    </div>
+
+    <nav class="flex justify-evenly items-center fixed bottom-0 w-full h-16 bg-c2 text-white font-semibold rounded-t-lg">
+      <a class="group" href="Bestand.html" target="_blank">
+        <div class="flex justify-center items-center flex-col">
+          <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#FFFFFF"><path d="M160-120v-480l320-240 320 240v480h-80v-440L480-740 240-560v440h-80Zm200-80h240v-80H360v80Zm0-160h240v-80H360v80Zm-80 240v-400h400v400H280Z"/></svg>
+          <p class="group-hover:text-green-400">Vorrat</p>
+        </div>
+      </a>
+
+      <a class="group" href="StartMenüplan.html" target="_blank">
+        <div class="flex justify-center items-center flex-col">
+          <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#FFFFFF"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm80 240v-80h400v80H280Zm0 160v-80h280v80H280Z"/></svg>
+          <p class="group-hover:text-green-400">Menuplan</p>
+        </div>
+      </a>
+
+      <a class="group" href="Verbrauch.html" target="_blank">
+        <div class="flex justify-center items-center flex-col">
+          <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#FFFFFF"><path d="M120-40v-880h80v80h560v-80h80v880h-80v-80H200v80h-80Zm80-480h80v-160h240v160h240v-240H200v240Zm0 320h240v-160h240v160h80v-240H200v240Zm160-320h80v-80h-80v80Zm160 320h80v-80h-80v80ZM360-520h80-80Zm160 320h80-80Z"/></svg>
+          <p class="group-hover:text-green-400">Verbrauch</p>
+        </div>
+      </a>
+
+
+
+      <a class="group" href="Einkaufsliste.html" target="_blank">
+        <div class="flex justify-center items-center flex-col">
+          <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M22 9h-4.79l-4.38-6.56c-.19-.28-.51-.42-.83-.42s-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1zM12 4.8L14.8 9H9.2L12 4.8zM18.5 19l-12.99.01L3.31 11H20.7l-2.2 8zM12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          <p class="group-hover:text-green-400">Einkaufsliste</p>
+        </div>
+      </a>
+    </nav>
+
   </main>
 
  
   <script type="module" src="js/bestand.js"></script>
 </body>
 </html>
+

@@ -4,6 +4,10 @@ export function kreiereMenus(localStorageKey) {
   let zutatenBearbeitenId;
   let menuPlan;
 
+  console.log(localStorage)
+
+
+
   function saveToLocalStorage() {
     localStorage.setItem(localStorageKey, JSON.stringify(menuPlan));
   }
@@ -16,18 +20,24 @@ export function kreiereMenus(localStorageKey) {
       menuPlan = [{
         id: 1,
         tag: 'Montag',
-        name: '',
+        name: 'Pasta',
         zutaten: []
       }, {
         id: 2,
         tag: 'Dienstag',
         name: '',
         zutaten: []
-      },{
+      }, {
         id: 3,
-        tag: 'Donnerstag',
-        name: '',
-        zutaten: []
+        tag: 'Mittwoch',
+        name: 'Pizza',
+        zutaten: [{
+          produktName: 'Salami',
+          menge: 1,
+        }, {
+          produktName: 'Mozerella',
+          menge: 2,
+        }]
       }, {
         id: 4,
         tag: 'Donnerstag',
@@ -51,6 +61,7 @@ export function kreiereMenus(localStorageKey) {
       }];
     }
   }
+
 
   window.onload = function() {
     getFromLocalStorage(); 
@@ -112,7 +123,7 @@ export function kreiereMenus(localStorageKey) {
     if (event.keyCode === 13) {
       console.log(zutatenBearbeitenStatus)
 
-      let menge = event.target.value.trim();
+      let menge = event.target.value;
       let mengeId = event.target.dataset.mengeid;
       let zutatenInput = document.querySelector(`.zutaten-input-${mengeId}`);
       const button = document.querySelector(`.weitere-zutaten-${mengeId}`);
@@ -134,7 +145,7 @@ export function kreiereMenus(localStorageKey) {
         return;
       }
 
-      const zutatName = zutatenInput.value.trim();
+      const zutatName = zutatenInput.value;
 
       event.target.classList.add('hidden');
       zutatenInput.classList.add('hidden');
@@ -157,6 +168,9 @@ export function kreiereMenus(localStorageKey) {
 
     }
   }
+
+
+
 
   function addWeitereZutaten(event) {
     if(zutatenBearbeitenStatus) {
@@ -194,6 +208,8 @@ export function kreiereMenus(localStorageKey) {
       saveToLocalStorage();
     }
   }
+
+
 
 
   function zutatAnfügen(index, id) {
@@ -239,6 +255,8 @@ export function kreiereMenus(localStorageKey) {
   
   }
 
+
+
   function zutatenBearbeiten(event) {
     const id = event.target.dataset.bearbeitungsid;
     const plusBtns = document.querySelectorAll(`.plus-btn-${id}`);
@@ -270,6 +288,7 @@ export function kreiereMenus(localStorageKey) {
     }
   }
   
+
   function renderMenusFromStock() {
     const testBtn = document.createElement('button');
     testBtn.classList.add(
@@ -282,7 +301,6 @@ export function kreiereMenus(localStorageKey) {
 
     })
     
-    //alle elemente werden erstellt und gestylt
     const menusContainer = document.querySelector('.menus-container');
     menusContainer.innerHTML = '';
     menusContainer.appendChild(testBtn);
@@ -493,7 +511,7 @@ export function kreiereMenus(localStorageKey) {
      
 
 
-      //check ob der menuName oder ein Input angezeigt werden soll
+
       if (menu.name) {
         menuNameParagraph.innerHTML += menu.name;
 
@@ -504,14 +522,14 @@ export function kreiereMenus(localStorageKey) {
           menuBearbeitungsBtn.classList.add('hidden');
       }
 
-      //check ob die zutaten in der liste oder die beiden inputs angezeigt werden sollen
+
       if (menu.zutaten.length > 0) {
         zutatenInput.classList.add('hidden');
         mengeInput.classList.add('hidden');
         zutatenListeContainer.classList.add('block');
 
         const zutatenListeElement = document.querySelector(`.zutaten-liste-${menu.id}`);
-        
+
         menu.zutaten.forEach((zutat, index) => {
           const zutatenListenEintrag = document.createElement('li');
           zutatenListenEintrag.classList.add(
@@ -562,7 +580,6 @@ export function kreiereMenus(localStorageKey) {
           zutatenListenEintrag.appendChild(plusBtn);
           zutatenListenEintrag.appendChild(minusBtn);
 
-          //checkt ob die plus und minus btns für die zutaten angezeigt werden sollen, basierend auf zutatenBearbeitenStatus
           if (zutatenBearbeitenStatus) {
             if (zutatenBearbeitenId === menu.id) {
               plusBtn.classList.remove('hidden');
@@ -578,6 +595,7 @@ export function kreiereMenus(localStorageKey) {
               plusBtn.classList.remove('inline-block');
               minusBtn.classList.remove('inline-block');
               console.log('test2')
+
             }
 
             if (zutatenBearbeitungsBtn.classList.contains(`zutaten-bearbeitungs-btn-${zutatenBearbeitenId}`)) {
@@ -589,29 +607,41 @@ export function kreiereMenus(localStorageKey) {
             }
 
           } else if(!zutatenBearbeitenStatus) {
+            console.log('test3')
+
             plusBtn.classList.remove('inline-block');
             minusBtn.classList.remove('inline-block');           
             plusBtn.classList.add('hidden');
             minusBtn.classList.add('hidden');
+
             zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menu.id}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
           }
+
+
 
           if(plusBtn.classList.contains(`plus-btn-${zutatenBearbeitenId}`) && minusBtn.classList.contains(`minus-btn-${zutatenBearbeitenId}`)) {
             plusBtn.classList.remove('hidden');
             minusBtn.classList.remove('hidden');
+            
             plusBtn.classList.add('inline-block');
             minusBtn.classList.add('inline-block');
-
           } else {
             plusBtn.classList.add('hidden')
             minusBtn.classList.add('hidden')
             zutatenListeContainer.classList.add('flex');
+
           }   
         });
         weitereZutatenBtn.classList.remove('hidden')
         weitereZutatenBtn.classList.add('block');
+    
+
+
+
+
 
       } else if (menu.zutaten.length <= 0) {
+
         zutatenListeContainer.classList.add('flex');
         zutatenInput.classList.add('block');
         mengeInput.classList.add('block');
@@ -619,7 +649,7 @@ export function kreiereMenus(localStorageKey) {
       }
     });
 
-    //alle eventlisteners für die inputs und einen teil der btns
+
     const menuInputs = document.querySelectorAll('.menu-name-container input');
     const zutatenInputs = document.querySelectorAll('.menu-zutaten-container .input-container input');
     const mengeInputs = document.querySelectorAll('.menu-zutaten-container .input-container input:nth-child(2)');

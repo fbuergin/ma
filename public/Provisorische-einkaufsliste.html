@@ -3,33 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Einkaufsliste</title>
+  <title>Einkaufsliste provisorisch</title>
 
   <link href="./output.css" rel="stylesheet">
-  <style>
-    @keyframes hide {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-  } 
-  .post {
-    animation-name: hide;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-    animation-play-state: paused;
-  }
-  </style>
+
 
 
 </head>
 <body class="bg-c1">
   <header class="flex justify-evenly items-center fixed top-0 h-14 w-full bg-c1 text-white border-b">
-    <h1>Einkaufsliste</h1>
+    <h1>Einkaufsliste provisorisch</h1>
   </header>
-  <main class=" mt-12 mb-20 m-0 p-0 ">
+
+  <main  class="mb-20 mt-12">
     <div class="container flex justify-center items-center">
       <div class="hidden justify-center items-center flex-col bg-c2 border-0 h-96 w-96 mt-4" id="reader">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
@@ -38,10 +24,7 @@
     </div>
 
     
-    <div class="prov-einkaufsliste-container flex flex-col justify-center items-center w-full bg-c1 text-white mt-5 px-2 pt-2">
-    </div>
-        
-    <div class="einkaufsliste-container flex flex-col justify-center items-center w-full bg-c1 text-white mt-5 px-2 pt-2">
+    <div class="prov-einkaufsliste-container flex flex-col justify-center items-center w-full bg-c1">
     </div>
 
 
@@ -77,8 +60,7 @@
   </main>
   
   <script src="https://unpkg.com/html5-qrcode"></script>
-
-  <script type="module" src="js/einkaufsliste.js"></script>
+  <script type="module" src="js/einkaufsliste-provisorisch.js"></script>
   <script type="module" src="js/databaseConnection4.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

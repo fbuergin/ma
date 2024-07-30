@@ -1,51 +1,74 @@
 import { fetchProductData, error } from "./databaseConnection.js";
 
-
-export let bestand = [];
-
-// Laden des Bestands aus dem Local Storage
+let bestand = [];
 function loadBestandFromLocalStorage() {
   const bestandData = localStorage.getItem('bestand');
-  if (bestandData) {
+  console.log(localStorage)
+  if (bestandData !== 'undefined' && bestandData) {
+    console.log('test')
     bestand = JSON.parse(bestandData);
   } else {
     bestand = [{
       description: 'tomate',
       menge: 2,
-      barcode:'100'
+      barcode:'001'
     }, {
       description: 'apfel',
-      menge: 1,
-      barcode:'101'
+      menge: 2,
+      barcode:'002'
     }];
-    saveBestandToLocalStorage();
+    saveBestandToLocalStorage(bestand);
   }
 }
 
+function saveBestandToLocalStorage(bestand) {
+  localStorage.setItem('bestand', JSON.stringify(bestand));
+}
+
 window.onload = function() {
+  console.log(bestand)
   loadBestandFromLocalStorage();
   renderBestandHtml();
 }
 
-// Speichern des Bestands im Local Storage
-function saveBestandToLocalStorage() {
-  localStorage.setItem('bestand', JSON.stringify(bestand));
-}
-
-
-
-
-/*
 //scanner
-
 let scanner = false;
-
 document.querySelector('.scanning-btn').addEventListener('click', () => {
   if (!scanner) {
-    scanner = true; 
     initializeScanner();
+    scanner = true; 
     document.querySelector('.scanning-btn').remove();
     console.log('Scanner gestartet');
+    document.querySelector('.scanning-btn-container').classList.remove('flex')
+    document.querySelector('.bestand-produkte-container').classList.remove('flex')
+    document.querySelector('.scanning-btn-container').classList.add('hidden')
+    document.querySelector('.bestand-produkte-container').classList.add('hidden')
+    document.getElementById('reader').classList.remove('hidden')
+    document.getElementById('reader').classList.add('flex')
+
+    document.getElementById('reader__scan_region').classList.add(
+      'flex',
+      'justify-center',
+      'items-center'
+    )
+    
+    /*
+    document.getElementById('html5-qrcode-button-camera-permission').classList.add(
+      'bg-green-400',
+      'rounded-lg',
+      'text-black',
+      'w-auto',
+      'p-2',
+      'text-semibold',
+      'mb-2',
+      'shadow-xl',
+      'hover:bg-green-600'
+    )
+    document.getElementById('html5-qrcode-anchor-scan-type-change').classList.add(
+      'hover:text-green-600'
+    )
+    */
+    getState()
   }
 });
 
@@ -59,39 +82,32 @@ document.querySelector('.nochmals-scannen-btn').addEventListener('click', () => 
 });
 
 function initializeScanner() {
-    scanner = new Html5QrcodeScanner('reader', {
-        qrbox: {
-            width: 250,
-            height: 250,
-        },
-        fps: 20,
-    });
-    
-    scanner.render(success, error);
+  scanner = new Html5QrcodeScanner('reader', {
+      qrbox: {
+          width: 250,
+          height: 250,
+      },
+      fps: 20,
+  });
+  scanner.render(success, error);
 }
-
+  
 function success(result) {
     document.querySelector('.nochmals-scannen-btn').style.display = "block"; 
-    
     scanner.clear();
     document.getElementById('reader').remove();
     getProduktData(result);
 }
-*/
-
 //maybe probleme mit error function also in verbrauch.js angegeben das es das braucht
-
-
+/*
 //damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
 document.querySelector('.scanning-btn').addEventListener('click', () => {
   getProduktData('151212300000');
 });
-
+*/
 
 
 let neuesProdukt = '';
-
-
 async function getProduktData(result) {
   try {
     let upcCode = result;
@@ -99,139 +115,159 @@ async function getProduktData(result) {
     addToBestand(neuesProdukt);
     renderBestandHtml();
     console.log(bestand)
-
-
   } catch (error) {
-    console.error('Fehler beim Abrufen der Daten:', error);
-   
+    console.error('Fehler beim Abrufen der Daten:', error); 
   }
 }
 
-
-
 function renderBestandHtml() {
-  const tableBody = document.querySelector('#bestandTable tbody');
-  tableBody.innerHTML = '';
+  const bestandContainer = document.querySelector('.bestand-produkte-container');
+  bestandContainer.innerHTML = '';
 
- 
   bestand.forEach(produkt => {
-    const row = document.createElement('tr');
-    let produktName = '';
+    const produktContainer = document.createElement('div');
+    produktContainer.classList.add(
+      'produkt-container', 
+      `produkt-container-${produkt.barcode}`, 
+      'flex', 
+      'items-center',
+      'w-full',
+      'justify-start', 
+      'rounded-lg',
+      'gap-x-20',
+      'p-3',
+      'm-2',
+      'shadow-md',
+      'bg-c2'
+    );
+    console.log(produktContainer)
+    
+    const produktNameDiv = document.createElement('div');
+    produktNameDiv.textContent = produkt.description || produkt.title || produkt.barcode;
+    produktContainer.appendChild(produktNameDiv);
+    produktNameDiv.classList.add(
+      'produkt-name',
+      'basis-1/4',
+    );
 
-    if (produkt.description) {
-      produktName = produkt.description;
-    } else if (produkt.description === ''){
-      produktName = produkt.title;
-    } else if (produkt.title === '') {
-      produktName = produkt.barcode;
-    } else {
-      return false;
-    }
+
+    const mengeDiv = document.createElement('div');
+    mengeDiv.textContent = produkt.menge;
+    produktContainer.appendChild(mengeDiv);
+    mengeDiv.classList.add(
+      'produkt-menge',
+      'basis-1/4'
+    );
 
 
-    const produktNameCell = document.createElement('td');
-    produktNameCell.textContent = produktName;
-    row.appendChild(produktNameCell);
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add(
+      'button-container',
+      'basis-1/2',
+    );
 
-    const quantityCell = document.createElement('td');
-    quantityCell.textContent = produkt.menge;
-    row.appendChild(quantityCell);
+    const plusButton = document.createElement('button');
+    plusButton.textContent = '+';
+    plusButton.dataset.produktCode = produkt.barcode;
+    buttonContainer.appendChild(plusButton);
+    plusButton.classList.add(
+      'plus-btn',
+      'bg-green-400',
+      'hover:bg-green-600',
+      'h-9',
+      'w-9',
+      'rounded-full',
+      'mr-2'
+    );
+    plusButton.addEventListener('click', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = bestand.find(p => p.barcode === produktCode);
+      console.log(bestand)
+      console.log(event.target.dataset)
+      addToBestand(produkt);
+    })
 
-    const addButtonCell = document.createElement('td');
-    const addButton = document.createElement('button');
-    addButton.textContent = '+';
-    addButton.dataset.produktCode = produkt.barcode; 
-    addButton.classList.add('plus-btn');
-    addButtonCell.appendChild(addButton);
-    row.appendChild(addButtonCell);
+    let intervalId;
+    let timeoutId;
 
-    const removeButtonCell = document.createElement('td');
-    const removeButton = document.createElement('button');
-    removeButton.textContent = '-';
-    removeButton.dataset.produktCode = produkt.barcode; 
-    removeButton.classList.add('minus-btn'); 
-    removeButtonCell.appendChild(removeButton);
-    row.appendChild(removeButtonCell);
+    plusButton.addEventListener('mousedown', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = bestand.find(p => p.barcode === produktCode);
+      addToBestand(produkt);
+      timeoutId = setTimeout(function() {
+        intervalId = setInterval(function() {
+          addToBestand(produkt);
+        }, 100); 
+      }, 700); 
+    })
 
-    tableBody.appendChild(row);
+
+    const minusButton = document.createElement('button');
+    minusButton.textContent = '-';
+    minusButton.dataset.produktCode = produkt.barcode;
+    buttonContainer.appendChild(minusButton);
+    minusButton.classList.add(
+      'minus-btn',
+      'bg-green-400',
+      'hover:bg-green-600',
+      'h-9',
+      'w-9',
+      'rounded-full',
+    );
+    minusButton.addEventListener('click', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = bestand.find(p => p.barcode === produktCode);
+      removeFromBestand(produkt);
+    })
+    minusButton.addEventListener('mousedown', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = bestand.find(p => p.barcode === produktCode);
+      removeFromBestand(produkt);
+      timeoutId = setTimeout(function() {
+        intervalId = setInterval(function() {
+          removeFromBestand(produkt);
+        }, 100); 
+      }, 700); 
+    })
+
+    document.addEventListener('mouseup', function(event) {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    });
+
+
+    produktContainer.appendChild(buttonContainer);
+    bestandContainer.appendChild(produktContainer);
   });
 }
 
 
-function addToBestand(neuesProdukt) {
-  const vorhandenesProdukt = bestand.find(produkt => produkt.barcode === neuesProdukt.barcode);
-
+function addToBestand(produkt) {
+  console.log(bestand)
+  const vorhandenesProdukt = bestand.find(p => p.barcode === produkt.barcode);
   if (vorhandenesProdukt) {
     vorhandenesProdukt.menge++;
   } else {
-    bestand.push(neuesProdukt);
-    neuesProdukt.menge = 1;
+    bestand.push(produkt);
+    produkt.menge = 1;
 
   }
-  saveBestandToLocalStorage();
+  saveBestandToLocalStorage(bestand);
   renderBestandHtml(); 
 }
 
-function removeFromBestand(produktCode) {
-  const index = bestand.findIndex(produkt => produkt.barcode === produktCode);
-  
+function removeFromBestand(produkt) {
+  const index = bestand.findIndex(p => p.barcode === produkt.barcode);
   if (index !== -1) {
     if (bestand[index].menge > 1) {
       bestand[index].menge--;
     } else {
       bestand.splice(index, 1); 
     }
-
-    saveBestandToLocalStorage(); 
+    saveBestandToLocalStorage(bestand); 
     renderBestandHtml();
   }
 }
-
-/*
-//plus und minus btn
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('plus-btn')) {
-    const produktName = event.target.dataset.produkt;
-    addToBestand({description: produktName});
-  }
-});
-
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('minus-btn')) {
-    const produktName = event.target.dataset.produkt;
-    removeFromBestand(produktName);
-  }
-});
-*/
-
-//plus minus btn (upgrade)
-let intervalId;
-let timeoutId;
-
-document.addEventListener('mousedown', function(event) {
-  if (event.target.classList.contains('plus-btn')) {
-    const produktCode = event.target.dataset.produktCode;
-    addToBestand({barcode: produktCode});
-    timeoutId = setTimeout(function() {
-      intervalId = setInterval(function() {
-        addToBestand({barcode: produktCode});
-      }, 100); 
-    }, 700); 
-  } else if (event.target.classList.contains('minus-btn')) {
-    const produktCode = event.target.dataset.produktCode;
-    removeFromBestand(produktCode);
-    timeoutId = setTimeout(function() {
-      intervalId = setInterval(function() {
-        removeFromBestand(produktCode);
-      }, 100); 
-    }, 700); 
-  }
-});
-
-document.addEventListener('mouseup', function(event) {
-  clearInterval(intervalId);
-  clearTimeout(timeoutId);
-});
 
 
 

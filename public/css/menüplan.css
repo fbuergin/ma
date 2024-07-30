@@ -21,25 +21,30 @@ main {
   margin: 20px;
 }
 
-/* Stile für die Tabelle */
+
+
+
+
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
 th, td {
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ddd;
 }
 
 th {
-  background-color: #f2f2f2;
-  text-align: left;
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
 }
 
-/* Stile für die Input-Felder */
+
+
 input[type="text"] {
-  width: 100%;
+  width: calc(100% - 16px);
   padding: 8px;
   box-sizing: border-box;
   border: 1px solid #ccc;
@@ -50,4 +55,53 @@ input[type="text"] {
 input[type="text"]:focus {
   border-color: #4CAF50;
   outline: none;
+}
+
+.zutaten-reihe {
+  display: grid;
+  justify-content:  center;
+  align-items: center;
+  grid-template-columns: 4fr 1fr 1fr;
+  grid-column-gap: 10px;
+}
+
+
+.zutaten-reihe input[type="text"] {
+  width: calc(50% - 8px);
+}
+
+
+.menu-bearbeitungs-btn,
+.zutaten-bearbeitungs-btn,
+.weitere-zutaten-btn {
+  padding: 8px 16px;
+  margin-left: 8px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu-bearbeitungs-btn:hover,
+.zutaten-bearbeitungs-btn:hover,
+.weitere-zutaten-btn:hover {
+  background-color: #45a049;
+}
+
+.weitere-zutaten-btn {
+  margin-top: 8px;
+}
+
+.plus-btn, .minus-btn {
+  color: white;
+  background-color: #45a049;
+  padding: 4px;
+  margin-left: 3px;
+  margin-right: 3px;
+  height: 30px;
+  width: 30px;
+  border-radius: 15px;
+  border: none;
 }

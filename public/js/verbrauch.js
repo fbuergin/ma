@@ -9,13 +9,13 @@ function loadVerbrauchFromLocalStorage() {
     verbrauch = JSON.parse(verbrauchData);
   } else {
     verbrauch = [{
-      description: 'tomate',
+      description: 'apfel',
       menge: 1,
-      barcode:'100'
+      barcode:'002'
     }, {
       description: 'birne',
-      menge: 2,
-      barcode:'102'
+      menge: 1,
+      barcode:'003'
     }];
     saveVerbrauchToLocalStorage();
   }
@@ -38,12 +38,49 @@ let scanner = false;
 
 document.querySelector('.scanning-btn').addEventListener('click', () => {
   if (!scanner) {
-    scanner = true; 
     initializeScanner();
+    scanner = true; 
     document.querySelector('.scanning-btn').remove();
     console.log('Scanner gestartet');
+    document.querySelector('.scanning-btn-container').classList.remove('flex')
+    document.querySelector('.verbrauch-produkte-container').classList.remove('flex')
+    document.querySelector('.scanning-btn-container').classList.add('hidden')
+    document.querySelector('.verbrauch-produkte-container').classList.add('hidden')
+    document.getElementById('reader').classList.remove('hidden')
+    document.getElementById('reader').classList.add('flex')
+
+    document.getElementById('reader__scan_region').classList.add(
+      'flex',
+      'justify-center',
+      'items-center'
+    )
+    
+
+    /*
+    document.getElementById('html5-qrcode-button-camera-permission').classList.add(
+      'bg-green-400',
+      'rounded-lg',
+      'text-black',
+      'w-auto',
+      'p-2',
+      'text-semibold',
+      'mb-2',
+      'shadow-xl',
+      'hover:bg-green-600'
+    )
+
+
+    document.getElementById('html5-qrcode-anchor-scan-type-change').classList.add(
+      'hover:text-green-600'
+    )
+
+    */
+
+    
   }
 });
+
+
 
 document.querySelector('.nochmals-scannen-btn').addEventListener('click', () => {
   if (!scanner) {
@@ -53,6 +90,7 @@ document.querySelector('.nochmals-scannen-btn').addEventListener('click', () => 
     console.log('Scanner gestartet');
   }
 });
+
 
 function initializeScanner() {
     scanner = new Html5QrcodeScanner('reader', {
@@ -75,12 +113,12 @@ function success(result) {
 }
 
 
-
+/*
 //damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
 document.querySelector('.scanning-btn').addEventListener('click', () => {
   getProduktData('7610057030054');
 });
-
+*/
 
 
 let neuesVerbrauchtesProdukt = '';
@@ -103,50 +141,83 @@ async function getProduktData(result) {
 
 
 function renderVerbrauchHTML() {
-  const tableBody = document.querySelector('#verbrauchTable tbody');
-  tableBody.innerHTML = '';
+  const verbrauchContainer = document.querySelector('.verbrauch-produkte-container');
+  verbrauchContainer.innerHTML = '';
 
- 
   verbrauch.forEach(produkt => {
-    const row = document.createElement('tr');
-    let produktName = '';
+    const produktContainer = document.createElement('div');
+    produktContainer.classList.add(
+      'produkt-container', 
+      'flex', 
+      'items-center',
+      'w-full',
+      'justify-start', 
+      'rounded-lg',
+      'gap-x-20',
+      'p-3',
+      'm-2',
+      'shadow-md',
+      'bg-c2'
+    );
+    //produktContainer.style.borderRadius = '10px';
 
-    if (produkt.description) {
-      produktName = produkt.description;
-    } else if (produkt.description === ''){
-      produktName = produkt.title;
-    } else if (produkt.title === '') {
-      produktName = produkt.barcode;
-    } else {
-      return;
-    }
+    console.log(produktContainer)
 
 
-    const produktNameCell = document.createElement('td');
-    produktNameCell.textContent = produktName;
-    row.appendChild(produktNameCell);
+    const produktNameDiv = document.createElement('div');
+    produktNameDiv.classList.add(
+      'produkt-name',
+      'basis-1/4',
+    );
+    produktNameDiv.textContent = produkt.description || produkt.title || produkt.barcode;
+    produktContainer.appendChild(produktNameDiv);
 
-    const quantityCell = document.createElement('td');
-    quantityCell.textContent = produkt.menge;
-    row.appendChild(quantityCell);
+    const mengeDiv = document.createElement('div');
+    mengeDiv.classList.add(
+      'produkt-menge',
+      'basis-1/4'
+    );
+    mengeDiv.textContent = produkt.menge;
+    produktContainer.appendChild(mengeDiv);
 
-    const addButtonCell = document.createElement('td');
-    const addButton = document.createElement('button');
-    addButton.textContent = '+';
-    addButton.dataset.produktCode = produkt.barcode; 
-    addButton.classList.add('plus-btn');
-    addButtonCell.appendChild(addButton);
-    row.appendChild(addButtonCell);
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add(
+      'button-container',
+      'basis-1/2',
 
-    const removeButtonCell = document.createElement('td');
-    const removeButton = document.createElement('button');
-    removeButton.textContent = '-';
-    removeButton.dataset.produktCode = produkt.barcode; 
-    removeButton.classList.add('minus-btn'); 
-    removeButtonCell.appendChild(removeButton);
-    row.appendChild(removeButtonCell);
 
-    tableBody.appendChild(row);
+    );
+
+    const plusButton = document.createElement('button');
+    plusButton.classList.add(
+      'plus-btn',
+      'bg-green-400',
+      'hover:bg-green-600',
+      'h-9',
+      'w-9',
+      'rounded-full',
+      'mr-2'
+    );
+    plusButton.textContent = '+';
+    plusButton.dataset.produktCode = produkt.barcode;
+    buttonContainer.appendChild(plusButton);
+
+    const minusButton = document.createElement('button');
+    minusButton.classList.add(
+      'minus-btn',
+      'bg-green-400',
+      'hover:bg-green-600',
+      'h-9',
+      'w-9',
+      'rounded-full',
+    );
+    minusButton.textContent = '-';
+    minusButton.dataset.produktCode = produkt.barcode;
+    buttonContainer.appendChild(minusButton);
+
+    produktContainer.appendChild(buttonContainer);
+
+    verbrauchContainer.appendChild(produktContainer);
   });
 }
 

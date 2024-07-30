@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abendessen-Menüplan</title>
+    <link href="./output.css" rel="stylesheet">
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"></script>
+
+</head>
+<body class="bg-c1 text-white">
+
+    <header class="flex justify-evenly items-center fixed top-0 h-14 w-full bg-c1 text-white border-b">
+        <h1>Abendessen Menuplan</h1>
+      </header>
+    <nav>
+        <ul>
+            <li><a href="StartMenüplan.html">Zurück zur Startseite</a></li>
+        </ul>
+    </nav>
+
+    <main class="mb-20 mt-16">
+        <div class="menus-container flex flex-col gap-y-3">
+
+        </div>
+
+        <nav class="flex justify-evenly items-center fixed bottom-0 w-full h-16 bg-c2 text-white font-semibold rounded-t-lg">
+            <a class="group" href="Bestand.html" target="_blank">
+              <div class="flex justify-center items-center flex-col">
+                <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#FFFFFF"><path d="M160-120v-480l320-240 320 240v480h-80v-440L480-740 240-560v440h-80Zm200-80h240v-80H360v80Zm0-160h240v-80H360v80Zm-80 240v-400h400v400H280Z"/></svg>
+                <p class="group-hover:text-green-400">Vorrat</p>
+              </div>
+            </a>
+      
+            <a class="group" href="StartMenüplan.html" target="_blank">
+              <div class="flex justify-center items-center flex-col">
+                <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#FFFFFF"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm80 240v-80h400v80H280Zm0 160v-80h280v80H280Z"/></svg>
+                <p class="group-hover:text-green-400">Menuplan</p>
+              </div>
+            </a>
+      
+            <a class="group" href="Verbrauch.html" target="_blank">
+              <div class="flex justify-center items-center flex-col">
+                <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#FFFFFF"><path d="M120-40v-880h80v80h560v-80h80v880h-80v-80H200v80h-80Zm80-480h80v-160h240v160h240v-240H200v240Zm0 320h240v-160h240v160h80v-240H200v240Zm160-320h80v-80h-80v80Zm160 320h80v-80h-80v80ZM360-520h80-80Zm160 320h80-80Z"/></svg>
+                <p class="group-hover:text-green-400">Verbrauch</p>
+              </div>
+            </a>
+      
+      
+      
+            <a class="group" href="Einkaufsliste.html" target="_blank">
+              <div class="flex justify-center items-center flex-col">
+                <svg class="group-hover:fill-green-400" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M22 9h-4.79l-4.38-6.56c-.19-.28-.51-.42-.83-.42s-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1zM12 4.8L14.8 9H9.2L12 4.8zM18.5 19l-12.99.01L3.31 11H20.7l-2.2 8zM12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                <p class="group-hover:text-green-400">Einkaufsliste</p>
+              </div>
+            </a>
+          </nav>
+    </main>
+    <script type="module" src="js/abendessen-menüplan.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menüplan</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menüplan.css">
+</head>
+<body>
+    <header>
+        <h1>Menüplan</h1>
+    </header>
+    <nav>
+      <ul>
+          <li><a href="index.html">Zurück zur Startseite</a></li>
+          <li><a href="Bestand.html">Bestandsliste</a></li>
+          <li><a href="Verbrauch.html">Wochenverbrauch</a></li>
+          <li><a href="Einkaufsliste.html">Einkaufsliste</a></li>
+          
+      </ul>
+  </nav>
+    <main>
+        <button class="test-btn">test</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Wochentag</th>
+                    <th>Menü</th>
+                    <th>Zutaten</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Montag</td>
+                    <td class="menuName-reihe" data-reiheId="1">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="1">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="1">
+                        <input type="text" class="zutaten-input-1 zutaten-input" placeholder="Zutaten" data-zutatenId="1">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="1">
+
+                    </td>
+        
+
+                </tr>
+                <tr>
+                    <td>Dienstag</td>
+                    <td class="menuName-reihe" data-reiheId="2">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="2">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="2">
+                        <input type="text" class="zutaten-input-2 zutaten-input" placeholder="Zutaten" data-zutatenId="2">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="2">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mittwoch</td>
+                    <td class="menuName-reihe" data-reiheId="3">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="3">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="3">
+                        <input type="text" class="zutaten-input-3 zutaten-input" placeholder="Zutaten" data-zutatenId="3">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="3">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Donnerstag</td>
+                    <td class="menuName-reihe" data-reiheId="4">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="4">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="4">
+                        <input type="text" class="zutaten-input-4 zutaten-input" placeholder="Zutaten" data-zutatenId="4">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="4">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Freitag</td>
+                    <td class="menuName-reihe" data-reiheId="5">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="5">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="5">
+                        <input type="text" class="zutaten-input-5 zutaten-input" placeholder="Zutaten" data-zutatenId="5">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="5">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Samstag</td>
+                    <td class="menuName-reihe" data-reiheId="6">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="6">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="6">
+                        <input type="text" class="zutaten-input-6 zutaten-input" placeholder="Zutaten" data-zutatenId="6">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="6">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sonntag</td>
+                    <td class="menuName-reihe" data-reiheId="7">
+                        <input type="text" class="menuName-input" placeholder="Menu" data-menuNameId="7">
+                    </td>
+                    <td class="zutaten-reihe" data-reiheId="7">
+                        <input type="text" class="zutaten-input-7 zutaten-input" placeholder="Zutaten" data-zutatenId="7">
+                        <input type="text" class="menge-input" placeholder="Menge" data-mengeId="7">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </main>
+<script type="module" src="js/menüplan.js"></script>
+</body>
+</html>
