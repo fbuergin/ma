@@ -31,9 +31,11 @@ window.onload = function() {
   renderBestandHtml();
 }
 
+
 //scanner
 let scanner = false;
-document.querySelector('.scanning-btn').addEventListener('click', () => {
+
+function scanProdukt() {
   if (!scanner) {
     initializeScanner();
     scanner = true; 
@@ -64,21 +66,30 @@ document.querySelector('.scanning-btn').addEventListener('click', () => {
       'shadow-xl',
       'hover:bg-green-600'
     )
+    */
     document.getElementById('html5-qrcode-anchor-scan-type-change').classList.add(
       'hover:text-green-600'
     )
-    */
+    
     getState()
   }
-});
+}
 
-document.querySelector('.nochmals-scannen-btn').addEventListener('click', () => {
+function scanProduktnochmals() {
   if (!scanner) {
     scanner = true; 
     initializeScanner();
     document.querySelector('.nochmals-scannen-btn').remove();
     console.log('Scanner gestartet');
   }
+}
+
+document.querySelector('.scanning-btn').addEventListener('click', () => {
+  scanProdukt();
+});
+
+document.querySelector('.nochmals-scannen-btn').addEventListener('click', () => {
+  scanProduktnochmals();
 });
 
 function initializeScanner() {
@@ -92,33 +103,30 @@ function initializeScanner() {
   scanner.render(success, error);
 }
   
-function success(result) {
+async function success(result) {
     document.querySelector('.nochmals-scannen-btn').style.display = "block"; 
     scanner.clear();
     document.getElementById('reader').remove();
-    getProduktData(result);
-}
-//maybe probleme mit error function also in verbrauch.js angegeben das es das braucht
-/*
-//damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
-document.querySelector('.scanning-btn').addEventListener('click', () => {
-  getProduktData('151212300000');
-});
-*/
-
-
-let neuesProdukt = '';
-async function getProduktData(result) {
-  try {
-    let upcCode = result;
-    neuesProdukt = await fetchProductData(upcCode); 
+    let neuesProdukt = await fetchProductData(result);
     addToBestand(neuesProdukt);
     renderBestandHtml();
-    console.log(bestand)
-  } catch (error) {
-    console.error('Fehler beim Abrufen der Daten:', error); 
-  }
+
 }
+//maybe probleme mit error function also in verbrauch.js angegeben das es das braucht
+
+
+/*
+//damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
+document.querySelector('.scanning-btn').addEventListener('click', async () => {
+  let neuesProdukt = await fetchProductData('4103990020006');
+  console.log(neuesProdukt)
+  addToBestand(neuesProdukt);
+  renderBestandHtml();
+});
+*/
+document.querySelector('.scanning-btn').addEventListener('click', () => {
+  scanProdukt();
+})
 
 function renderBestandHtml() {
   const bestandContainer = document.querySelector('.bestand-produkte-container');
@@ -140,7 +148,6 @@ function renderBestandHtml() {
       'shadow-md',
       'bg-c2'
     );
-    console.log(produktContainer)
     
     const produktNameDiv = document.createElement('div');
     produktNameDiv.textContent = produkt.description || produkt.title || produkt.barcode;
@@ -169,7 +176,6 @@ function renderBestandHtml() {
     const plusButton = document.createElement('button');
     plusButton.textContent = '+';
     plusButton.dataset.produktCode = produkt.barcode;
-    buttonContainer.appendChild(plusButton);
     plusButton.classList.add(
       'plus-btn',
       'bg-green-400',
@@ -180,9 +186,10 @@ function renderBestandHtml() {
       'mr-2'
     );
     plusButton.addEventListener('click', (event) => {
+      console.log('test2')
+
       const produktCode = event.target.dataset.produktCode;
       const produkt = bestand.find(p => p.barcode === produktCode);
-      console.log(bestand)
       console.log(event.target.dataset)
       addToBestand(produkt);
     })
@@ -200,12 +207,13 @@ function renderBestandHtml() {
         }, 100); 
       }, 700); 
     })
+    buttonContainer.appendChild(plusButton);
+
 
 
     const minusButton = document.createElement('button');
     minusButton.textContent = '-';
     minusButton.dataset.produktCode = produkt.barcode;
-    buttonContainer.appendChild(minusButton);
     minusButton.classList.add(
       'minus-btn',
       'bg-green-400',
@@ -215,6 +223,7 @@ function renderBestandHtml() {
       'rounded-full',
     );
     minusButton.addEventListener('click', (event) => {
+      console.log('test')
       const produktCode = event.target.dataset.produktCode;
       const produkt = bestand.find(p => p.barcode === produktCode);
       removeFromBestand(produkt);
@@ -229,6 +238,7 @@ function renderBestandHtml() {
         }, 100); 
       }, 700); 
     })
+    buttonContainer.appendChild(minusButton);
 
     document.addEventListener('mouseup', function(event) {
       clearInterval(intervalId);
@@ -243,8 +253,9 @@ function renderBestandHtml() {
 
 
 function addToBestand(produkt) {
-  console.log(bestand)
-  const vorhandenesProdukt = bestand.find(p => p.barcode === produkt.barcode);
+  const vorhandenesProdukt = bestand.find(p => p.description === produkt.description) || bestand.find(p => p.title === produkt.title) || bestand.find(p => p.description === produkt.title) || bestand.find(p => p.title === produkt.description);
+  console.log(vorhandenesProdukt)
+
   if (vorhandenesProdukt) {
     vorhandenesProdukt.menge++;
   } else {
@@ -257,8 +268,10 @@ function addToBestand(produkt) {
 }
 
 function removeFromBestand(produkt) {
-  const index = bestand.findIndex(p => p.barcode === produkt.barcode);
-  if (index !== -1) {
+  const vorhandenesProdukt = bestand.find(p => p.description === produkt.description) || bestand.find(p => p.title === produkt.title) || bestand.find(p => p.description === produkt.title) || bestand.find(p => p.title === produkt.description);
+
+  if (vorhandenesProdukt) {
+    const index = bestand.indexOf(vorhandenesProdukt);
     if (bestand[index].menge > 1) {
       bestand[index].menge--;
     } else {
@@ -268,6 +281,8 @@ function removeFromBestand(produkt) {
     renderBestandHtml();
   }
 }
+
+
 
 
 

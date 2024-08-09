@@ -10,7 +10,8 @@ export async function fetchProductData(upc) {
     if (data.success === false) {
       alert('Produkt mit diesem Barcode konnte nicht in der Datenbank gefunden werden. Daher ist kein Eintrag in die Bestandsliste möglich');
     }
-
+    data.title = data.title.toLowerCase();
+    data.description = data.description.toLowerCase();
     // Weitere Verarbeitung der empfangenen Daten hier, falls erforderlich
     return data;
   } catch (error) {

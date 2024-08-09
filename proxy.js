@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 app.get('/product/:upc', async (req, res) => {
   try {
     const { upc } = req.params;
-    const API_KEY = process.env.UPC_database_API_KEY // Dein API-Schlüssel
+    const API_KEY = process.env.UPC_database_API_KEY 
 
     const response = await axios.get(`https://api.upcdatabase.org/product/${upc}`, {
       headers: {
@@ -50,7 +50,6 @@ app.get('/product/:upc', async (req, res) => {
 
 
 const {Translate} = require('@google-cloud/translate').v2;
-
 
 
 

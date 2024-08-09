@@ -1,6 +1,32 @@
 import { fetchSynonyms } from './databaseConnection4.js';
 import { fetchTranslation, detectLanguage } from './databaseConnection3.js';
 
+window.onload = async function() {
+  //localStorage.removeItem('provEinkaufsliste');
+  //localStorage.removeItem('einkaufsliste');
+  renderProvEinkaufsliste(await produkteUndZutatenAbgleichen(getMenuPläneFromLocalStorage(), erstelleAktualisiertenBestand()));
+  console.log(istProvEinkaufslisteVoll(getProvEinkaufslisteFromLocalStorage()))
+  console.log(getProvEinkaufslisteFromLocalStorage())
+}
+
+//blocked dass man auf andere Seiten kommen kann. Sonst ist es möglich die Prov-einkaufsliste zu übersprinen. Dies ist möglich wenn zuerst auf Prov-einkaufsliste -> dann auf anderer seite (z.b Bestand) und dann klickt man direkt auf Einkaufsliste was dazu führt das diese geöfnet wird und Einkaufsliste anzeigt
+function blockLinks() {
+  const links = document.getElementsByTagName('a');
+  //gibt HTML Collection zurück und kein Array, deshalb kein forEach möglich
+  for (let i = 0; i < links.length; i++) {
+    links[i].classList.add('pointer-events-none');
+  }
+}
+
+function entblockLinks() {
+  const links = document.getElementsByTagName('a');
+
+  for (let i = 0; i < links.length; i++) {
+    links[i].classList.add('pointer-events-auto');
+  }
+}
+
+/*
 const abgeglicheneProdukte = {
   gefundeneProdukte: [
     {
@@ -92,7 +118,7 @@ const abgeglicheneProdukte = {
     }
   ]
 };
-
+*/
 /*
 const scanner = new Html5QrcodeScanner('reader',{
   qrbox: {
@@ -122,7 +148,7 @@ function error(err){
 */
 
 
-function generiereId() {
+export function generiereId() {
   const now = new Date();
   const timestamp = now.valueOf();
   return timestamp.toString();
@@ -246,7 +272,7 @@ console.log('AkBestand:', erstelleAktualisiertenBestand(getBestandFromLocalStora
 console.log('Menus:', getMenuPläneFromLocalStorage())
 
 
-/*
+
 //Für jedes Produkt in den Menuplänen werden eine Übersetzung und diverse Synonyme erstellt.
 //Diese werden dann mit dem BEstand abgeglichen um herauszufinden ob allenfalls schon gleiche Produkte im Bestand enthalten sind.
 //Hauptsächlich eine vorsichtsmassnahme da es ja möglich ist dass ein produkt in einer anderen sprache schon vorhanden ist oder das
@@ -256,7 +282,6 @@ async function produkteUndZutatenAbgleichen(menuPläne, aktualisierterBestand) {
     gefundeneProdukte: [],
     nichtGefundeneProdukte: []
   };
-  console.time('abgeglicheneProdukte wird erstellt')
 
   for (const menuPlan of menuPläne) {
     for (const menu of menuPlan) {
@@ -324,18 +349,17 @@ async function produkteUndZutatenAbgleichen(menuPläne, aktualisierterBestand) {
       }
     }
   }  
-  console.timeEnd("abgeglicheneProdukte wird erstellt")
   console.log(abgeglicheneProdukte)
   return abgeglicheneProdukte;  
 }
 
-produkteUndZutatenAbgleichen(getMenuPläneFromLocalStorage(), erstelleAktualisiertenBestand())
-*/
+//await produkteUndZutatenAbgleichen(getMenuPläneFromLocalStorage(), erstelleAktualisiertenBestand())
+
 
 function renderProvEinkaufsliste(abgeglicheneProdukte) {
+  blockLinks();
   let provEinkaufsliste = getProvEinkaufslisteFromLocalStorage();
   const menuPläne = getMenuPläneFromLocalStorage();
-  console.log(provEinkaufsliste)
 
   const provEinkaufslisteContainer = document.querySelector('.prov-einkaufsliste-container');
   provEinkaufslisteContainer.innerHTML = '';
@@ -359,7 +383,6 @@ function renderProvEinkaufsliste(abgeglicheneProdukte) {
     };
     saveProvEinkaufslisteToLocalStorage(prov)*/
     console.log(provEinkaufsliste)
-
   })
 
   //jedes Produkt der Menupläne wird abgebildet und dann markiert. Wenn es ein ähnlichesProdukt ist kann der Benutzer entscheiden ob es wirklich dieses Produkt nochmals einkaufen will, weil es ja schon ein ähnliches im Bestand hat.
@@ -707,17 +730,17 @@ function renderProvEinkaufsliste(abgeglicheneProdukte) {
     })
   })
 /*
-  const generiereEinkaufslisteLink = document.createElement('a');
-  generiereEinkaufslisteLink.href = "Einkaufsliste.html";
-  generiereEinkaufslisteLink.classList.add(
+  const generiereEinkaufslisteBtn = document.createElement('a');
+  generiereEinkaufslisteBtn.href = "Einkaufsliste.html";
+  generiereEinkaufslisteBtn.classList.add(
     'w-full',
     'h-min'
   )
 */
-  const generiereEinkaufslisteLink = document.createElement('a');
+  const generiereEinkaufslisteBtn = document.createElement('button');
   //provEinkaufslisteContainer.appendChild(generiereEinkaufslisteBtn);
-  generiereEinkaufslisteLink.innerText = 'generiere Einkaufsliste'
-  generiereEinkaufslisteLink.classList.add(
+  generiereEinkaufslisteBtn.innerText = 'generiere Einkaufsliste'
+  generiereEinkaufslisteBtn.classList.add(
     'bg-green-400',
     'mt-10',
     'w-full',
@@ -730,7 +753,7 @@ function renderProvEinkaufsliste(abgeglicheneProdukte) {
 
   //check ob der benutzer alle ähnlichenProdukte schon geprüft hat. 
   //menge1 (die menge der Menüpläne produkte) muss gleich mit menge2 (menge der Produkte in der ProvEinkaufsliste) sein
-  generiereEinkaufslisteLink.addEventListener('click', () => {
+  generiereEinkaufslisteBtn.addEventListener('click', () => {
     let menge1 = 0;
     console.log(provEinkaufsliste)
     menuPläne.forEach((menuPlan) => {
@@ -759,16 +782,15 @@ function renderProvEinkaufsliste(abgeglicheneProdukte) {
         icon: "error"
       });
     } else {
-      generiereEinkaufslisteLink.href = "Einkaufsliste.html";
+      //generiereEinkaufslisteBtn.href = "Einkaufsliste.html";
+      window.open('Einkaufsliste.html');
     }
   })
-  
-  provEinkaufslisteContainer.appendChild(generiereEinkaufslisteLink);
-
 
   //fehlermeldung da der benutzer noch nichts in die menupläne eingetragen hat, somit ist auch die ProvEinkaufsliste leer.
-  if(provEinkaufslisteContainer.childElementCount === 2) {
-    generiereEinkaufslisteLink.classList.add('hidden')
+  if(istProvEinkaufslisteVoll(provEinkaufsliste) === 0) {
+    entblockLinks();
+    provEinkaufslisteContainer.classList.add('hidden')
 
     const infoDiv = document.createElement('div');
     infoDiv.classList.add(
@@ -792,56 +814,29 @@ function renderProvEinkaufsliste(abgeglicheneProdukte) {
     <p>Tragen Sie zuerst Menus und deren Zutaten in die Menulisten ein bevor Sie eine Einkaufsliste erstellen.</p>
     `;
     infoDiv.appendChild(infoText)
-    provEinkaufslisteContainer.appendChild(infoDiv)
-  }
+    document.body.appendChild(infoDiv)
+
+  } 
+  provEinkaufslisteContainer.appendChild(generiereEinkaufslisteBtn);
 }
-renderProvEinkaufsliste(abgeglicheneProdukte);
-console.log(getProvEinkaufslisteFromLocalStorage())
+//renderProvEinkaufsliste(await produkteUndZutatenAbgleichen(getMenuPläneFromLocalStorage(), erstelleAktualisiertenBestand()));
 
 
-//Zwischen array ungeordneteProvEinkaufsliste wird erstellt, damit dann die produkte besser abgefragt werden können.
-//von ungeordneteProvEinkaufsliste wird dann bereinigteProvEinkaufliste erstellt.
-//gecheckt ob es mehrere gleiche produkte in der einkufsliste hat, damit von diesen dann die menuMenge zusammengezählt werden können. 
-export function bereinigeProvEinkaufsliste() {
-  let provEinkaufsliste = getProvEinkaufslisteFromLocalStorage();
-  let ungeordneteProvEinkaufsliste = [];
-  let bereinigteProvEinkaufsliste = [];
-  
+
+function istProvEinkaufslisteVoll(provEinkaufsliste) {
+  let menge = 0;
+
   Object.values(provEinkaufsliste).forEach((value) => {
     if (Array.isArray(value)) {
-      value.forEach((p) => {
-        ungeordneteProvEinkaufsliste.push(p);
-      })
+      menge += value.length
     } else {
       Object.values(value).forEach((v) => {
-        v.forEach((produkt) => {
-          ungeordneteProvEinkaufsliste.push(produkt);
-        })
+        if (v.length) {
+          menge += v.length
+        }
       })
     }
   })
-  console.log(ungeordneteProvEinkaufsliste)
 
-  ungeordneteProvEinkaufsliste.forEach((p) => {
-      //prüfen dass das produkt noch nicht in bereinigteProvEinkaufsliste ist, damit es nicht mehrfach aufgenommen wird.    
-    let produktBereitsVorhanden = bereinigteProvEinkaufsliste.some((o) => {
-      return Object.values(o)[0].some((gleichesProdukt) => {
-        return gleichesProdukt.einkaufslisteName === p.einkaufslisteName
-      })
-    })
-
-    if (!produktBereitsVorhanden) {
-      let gleicheProdukte = ungeordneteProvEinkaufsliste.filter((produkt) => {
-        return p.einkaufslisteName === produkt.einkaufslisteName;
-      })
-  
-      let menuMengeTot = 0;
-      gleicheProdukte.forEach((p) => {
-        menuMengeTot += Number(p.menuMenge)
-      })
-      bereinigteProvEinkaufsliste.push({ [p.einkaufslisteName]: gleicheProdukte, 'menuMengeTot': menuMengeTot});
-    }
-  })
-  return bereinigteProvEinkaufsliste;
+  return menge;
 }
-    

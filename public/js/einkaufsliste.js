@@ -1,37 +1,89 @@
 import { fetchSynonyms } from './databaseConnection4.js';
 import { fetchTranslation, detectLanguage } from './databaseConnection3.js';
-import { getVerbrauchFromLocalStorage, getBestandFromLocalStorage, saveBestandToLocalStorage ,erstelleAktualisiertenBestand, bereinigeProvEinkaufsliste} from './einkaufsliste-provisorisch.js';
+import { getVerbrauchFromLocalStorage, getBestandFromLocalStorage, saveBestandToLocalStorage ,erstelleAktualisiertenBestand, getProvEinkaufslisteFromLocalStorage, generiereId} from './einkaufsliste-provisorisch.js';
+import { fetchProductData, error } from './databaseConnection.js';
 
-document.querySelector('.prov-einkaufsliste-container').innerHTML = ''
 
-/*
-const scanner = new Html5QrcodeScanner('reader',{
-  qrbox: {
-      width: 250,
-      height: 250,
-  },
-  fps: 20,
-});
-
-scanner.render(success,error);
-
-function success(result){
-  document.getElementById('result').innerHTML = `
-  <h2>Erfolgreich gescannt</h2>
-  <p><a href="${result}">${result}</a></p>
-  <br><br>
-  <a href="index.html">nochmal scannen</a>
-      `;
-  scanner.clear();
-  document.getElementById('reader').remove();
-
+window.onload = function() {
+  console.log(getEinkaufslisteFromLocalStorage())
+  saveEinkaufslisteToLocalStorage(erstelleEinkaufsliste());
+  renderEinkaufslisteHTML();
 }
 
-function error(err){
-  //console.error(err);
+
+
+//scanner
+let scanner = false;
+
+function scanProdukt() {
+  if (!scanner) {
+    initializeScanner();
+    scanner = true; 
+    //document.querySelector('.scanning-btn').remove();
+    console.log('Scanner gestartet');
+    //document.querySelector('.scanning-btn-container').classList.remove('flex')
+    document.querySelector('.einkaufsliste-container').classList.remove('flex')
+    //document.querySelector('.scanning-btn-container').classList.add('hidden')
+    document.querySelector('.einkaufsliste-container').classList.add('hidden')
+    document.getElementById('reader').classList.remove('hidden')
+    document.getElementById('reader').classList.add('flex')
+
+    document.getElementById('reader__scan_region').classList.add(
+      'flex',
+      'justify-center',
+      'items-center'
+    )
+    
+    /*
+    document.getElementById('html5-qrcode-button-camera-permission').classList.add(
+      'bg-green-400',
+      'rounded-lg',
+      'text-black',
+      'w-auto',
+      'p-2',
+      'text-semibold',
+      'mb-2',
+      'shadow-xl',
+      'hover:bg-green-600'
+    )
+      */
+    document.getElementById('html5-qrcode-anchor-scan-type-change').classList.add(
+      'hover:text-green-600'
+    )
+    
+    getState()
+  }
+}
+/*
+function scanProduktnochmals() {
+  if (!scanner) {
+    scanner = true; 
+    initializeScanner();
+    document.querySelector('.nochmals-scannen-btn').remove();
+    console.log('Scanner gestartet');
+  }
 }
 */
-console.log('test')
+
+function initializeScanner() {
+  scanner = new Html5QrcodeScanner('reader', {
+      qrbox: {
+          width: 250,
+          height: 250,
+      },
+      fps: 20,
+  });
+  scanner.render(success, error);
+}
+  
+async function success(result) {
+    //document.querySelector('.nochmals-scannen-btn').style.display = "block"; 
+    scanner.clear();
+    document.getElementById('reader').remove();
+    let neuesProdukt = await fetchProductData(result);
+}
+//maybe probleme mit error function also in verbrauch.js angegeben das es das braucht
+
 
 
 /*
@@ -122,112 +174,54 @@ async function produkteUndZutatenAbgleichen(menuPläne, aktualisierterBestand) {
 produkteUndZutatenAbgleichen(menuPläne, kreiereAktualisierterBestand(bestand, verbrauch))
 */
 
-/*
 
- Swal.fire({
-            title: "Achtung!",
-            html: `<p class="text-lg font-semibold">Es ist nur noch ein Produkt in der Einkaufsliste</p><br>
-            Da Ihr Einkauf nach dem einscannen dieses letzte Produktes zu Ende ist, werden Ihre Menupläne und der Verbrauch zurückgesetzt`,
-            icon: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Einverstanden",
-            cancelButtonText: "Nein, noch nicht zurücksetzen"
-*/
-
-const abgeglicheneProdukte = {
-  gefundeneProdukte: [
-    {
-      barcode: "002",
-      description: "apfel",
-      id: "1720542805369",
-      menge: 1,
-      menuMenge: "1",
-      menuZutatName: "apfel",
-      zutatStatus: "gleich"
-    },
-    {
-      barcode: "003",
-      description: "birne",
-      id: "1720542807593",
-      menge: -1,
-      menuMenge: "1",
-      menuZutatName: "birne",
-      zutatStatus: "gleich"
-    },
-    {
-      barcode: "003",
-      description: "birne",
-      id: "1720542809690",
-      menge: -1,
-      menuMenge: "1",
-      menuZutatName: "poire",
-      zutatStatus: "gleich"
-    },
-    {
-      barcode: "002",
-      description: "apfel",
-      id: "1720542811910",
-      menge: 1,
-      menuMenge: "1",
-      menuZutatName: "apfelfrucht",
-      zutatStatus: "ähnlich"
-    },
-    {
-      barcode: "002",
-      description: "apfel",
-      id: "1720542814204",
-      menge: 1,
-      menuMenge: "1",
-      menuZutatName: "Liebesapfel",
-      zutatStatus: "ähnlich"
-    },
-    {
-      barcode: "001",
-      description: "tomate",
-      id: "1720542818677",
-      menge: 2,
-      menuMenge: "1",
-      menuZutatName: "Cherrytomate",
-      zutatStatus: "ähnlich"
+//Zwischen array ungeordneteProvEinkaufsliste wird erstellt, damit dann die produkte besser abgefragt werden können.
+//von ungeordneteProvEinkaufsliste wird dann bereinigteProvEinkaufliste erstellt.
+//gecheckt ob es mehrere gleiche produkte in der einkufsliste hat, damit von diesen dann die menuMenge zusammengezählt werden können. 
+function bereinigeProvEinkaufsliste() {
+  let provEinkaufsliste = getProvEinkaufslisteFromLocalStorage();
+  let ungeordneteProvEinkaufsliste = [];
+  let bereinigteProvEinkaufsliste = [];
+  
+  Object.values(provEinkaufsliste).forEach((value) => {
+    if (Array.isArray(value)) {
+      value.forEach((p) => {
+        ungeordneteProvEinkaufsliste.push(p);
+      })
+    } else {
+      Object.values(value).forEach((v) => {
+        v.forEach((produkt) => {
+          ungeordneteProvEinkaufsliste.push(produkt);
+        })
+      })
     }
-  ],
-  nichtGefundeneProdukte: [
-    {
-      id: "1720542816441",
-      menuMenge: "1",
-      menuZutatName: "Brot",
-      synonyme: [
-        "strafbare handlung",
-        "krimineller akt",
-        "illegale handlung",
-        "unrechtstat",
-        "verbrechen",
-        "straftat",
-        "tat",
-        "untat",
-        "brotlaib",
-        "wecken "
-      ],
-      übersetzung: "delikt"
-    },
-    {
-      id: "1720542820919",
-      menuMenge: "1",
-      menuZutatName: "ground beef",
-      synonyme: [
-        "haschee",
-        "gewiegtes",
-        "faschiertes",
-        "gehacktes",
-        "hack"
-      ],
-      übersetzung: "hackfleisch"
-    }
-  ]
-};
+  })
+  console.log(ungeordneteProvEinkaufsliste)
 
+  ungeordneteProvEinkaufsliste.forEach((p) => {
+      //prüfen dass das produkt noch nicht in bereinigteProvEinkaufsliste ist, damit es nicht mehrfach aufgenommen wird.    
+    let produktBereitsVorhanden = bereinigteProvEinkaufsliste.some((o) => {
+      return Object.values(o)[0].some((gleichesProdukt) => {
+        return gleichesProdukt.einkaufslisteName === p.einkaufslisteName
+      })
+    })
+
+    if (!produktBereitsVorhanden) {
+      let gleicheProdukte = ungeordneteProvEinkaufsliste.filter((produkt) => {
+        return p.einkaufslisteName === produkt.einkaufslisteName;
+      })
+  
+      let menuMengeTot = 0;
+      gleicheProdukte.forEach((p) => {
+        menuMengeTot += Number(p.menuMenge)
+      })
+      bereinigteProvEinkaufsliste.push({ [p.einkaufslisteName]: gleicheProdukte, 'menuMengeTot': menuMengeTot});
+    }
+  })
+  console.log(provEinkaufsliste)
+  return bereinigteProvEinkaufsliste;
+}
+    
 
 //bereinigteProvEk wird durchgegegangen und die menuMengeTot wird der bestands.menge abgezogen um die einkaufsmenge zu erstellen
 function erstelleEinkaufsliste() {
@@ -243,9 +237,8 @@ function erstelleEinkaufsliste() {
 
     if (gleichesBestandsProdukt) {
       let neueMenge = gleichesBestandsProdukt.menge - p.menuMengeTot;
-      if (neueMenge >= 0) {
-        einkaufsliste.push({'id': Object.values(p)[0][0].id , 'produktName': Object.keys(p)[0], 'neueMenge': neueMenge, 'einkaufsMenge': 0})
-      } else {
+      //wenn die menge grösser oder 0 ist wird es nicht zu einkaufsliste zugefügt
+      if (!neueMenge >= 0) {
         let einkaufsMenge = neueMenge * -1;
         einkaufsliste.push({'id': Object.values(p)[0][0].id , 'produktName': Object.keys(p)[0], 'neueMenge': neueMenge, 'einkaufsMenge': einkaufsMenge})
       }
@@ -253,7 +246,7 @@ function erstelleEinkaufsliste() {
       einkaufsliste.push({'id': Object.values(p)[0][0].id ,'produktName': Object.keys(p)[0], 'einkaufsMenge': p.menuMengeTot})
     }
   })
-  console.log(einkaufsliste)
+  console.log(bereinigteProvEinkaufsliste)
   return einkaufsliste;
 }
 
@@ -261,10 +254,11 @@ function getEinkaufslisteFromLocalStorage() {
   let einkaufsliste = [];
   const data = localStorage.getItem('einkaufsliste');
   console.log(data)
-  if (data !== undefined && data !== null && data !== '[]') {
+  if (data !== undefined && data !== null) {
     einkaufsliste = JSON.parse(data);
   } else {
-    einkaufsliste = erstelleEinkaufsliste();
+    //einkaufsliste = erstelleEinkaufsliste();
+    einkaufsliste = []
   }
   return einkaufsliste;
 }
@@ -277,7 +271,7 @@ function saveEinkaufslisteToLocalStorage(einkaufsliste) {
 
 
 function renderEinkaufslisteHTML() {
-  let einkaufsliste = getEinkaufslisteFromLocalStorage()
+  let einkaufsliste = getEinkaufslisteFromLocalStorage();
   const einkaufslisteContainer = document.querySelector('.einkaufsliste-container');
   einkaufslisteContainer.innerHTML = '';
 
@@ -287,9 +281,10 @@ function renderEinkaufslisteHTML() {
   testBtn.classList.add('bg-white', 'h-6', 'w-6');
   testBtn.addEventListener('click', () => {
     console.log(einkaufsliste)
+    console.log(getProvEinkaufslisteFromLocalStorage())
   })
-
-  if (!einkaufsliste.some(p => p.einkaufsMenge !== 0)) {
+  
+  if (einkaufsliste.length === 0) {
     const infoDiv = document.createElement('div');
     infoDiv.classList.add(
       'flex',
@@ -311,7 +306,7 @@ function renderEinkaufslisteHTML() {
     <p>Wenn du eine neue Einkaufsliste generieren möchtest, werden alle Einträge in deinen Menulisten gelöscht</p>
     `;
 
-    const generationsBtn = document.createElement('a');
+    const generationsBtn = document.createElement('button');
     generationsBtn.classList.add(
       'bg-green-400',
       'text-black',
@@ -324,17 +319,17 @@ function renderEinkaufslisteHTML() {
       'font-semibold'
     );
     generationsBtn.innerText = 'Neue Einkaufsliste generieren';
-    generationsBtn.href = 'Provisorische-einkaufsliste.html';
+    generationsBtn.addEventListener('click', () => {
+      localStorage.removeItem('einkaufsliste');
+      localStorage.removeItem('provEinkaufsliste');
+      window.open('Prov-Einkaufsliste.html');
+    });
 
     einkaufslisteContainer.appendChild(infoDiv);
     infoDiv.appendChild(infoText);
     infoDiv.appendChild(generationsBtn);
 
-    generationsBtn.addEventListener('click', () => {
-      console.log(localStorage.getItem('morgenessenMenus'))
-    });
   } else {
-    console.log('test')
     einkaufsliste.forEach(produkt => {
       if (produkt.produktName && produkt.einkaufsMenge !== 0) {
         const produktContainer = document.createElement('div');
@@ -382,7 +377,16 @@ function renderEinkaufslisteHTML() {
         scanningBtnContanier.appendChild(scanningBtn)
         console.log('test3')
 
-        scanningBtn.addEventListener('click', (event) => {  
+        scanningBtn.addEventListener('click', async (event) => {  
+          //wenn das letzte produkt eingescannt wird sollte die einkaufsliste nicht mehr erstellt werden, somit wird dann das infodiv angezeigt
+          if (einkaufsliste.length === 1) {
+            localStorage.removeItem('morgenessenMenus');
+            localStorage.removeItem('mittagessenMenus');
+            localStorage.removeItem('abendessenMenus');
+            localStorage.removeItem('provEinkaufsliste')
+            //localStorage.removeItem('einkaufsliste');
+          }
+
           let node = event.target; 
           while (node.nodeName.toLowerCase() !== 'button') {
             node = node.parentElement;
@@ -392,42 +396,17 @@ function renderEinkaufslisteHTML() {
           const einkaufsProdukt = einkaufsliste.find(p => p.id === id);
           const produktContainer = document.querySelector(`.produkt-conatiner-${id}`)
 
-          let result = scanneEinkaufsProdukt(event);
-          let istGültig = checkeGültigkeit(einkaufsProdukt, result);
-          let istÜberschrieben;
+          let result = await scanneEinkaufsProdukt();
+          let istGültig = await checkeGültigkeit(einkaufsProdukt, result);
 
+          console.log(einkaufsliste)
           console.log(istGültig)
+          console.log(einkaufsProdukt)
           if (istGültig) {
-            produktMengeCheck(true, einkaufsProdukt, result);
+            await produktMengeCheck(true, einkaufsProdukt, result);
           } else {
             überschreibeProdukt(einkaufsProdukt, result);
           }
-
-          console.log('test1')
-          einkaufsliste.splice(einkaufsliste.indexOf(produkt), 1);
-          saveEinkaufslisteToLocalStorage(einkaufsliste);
-          console.log(einkaufsliste)
-
-          localStorage.removeItem('provEinkaufsliste');
-          localStorage.removeItem('einkaufsliste');
-          localStorage.removeItem('morgenessenMenus');
-          localStorage.removeItem('mittagessenMenus');
-          localStorage.removeItem('abendessenMenus');
-      
-          /*
-          produktContainer.classList.add('.hidden-container');
-          produktContainer.addEventListener('transitionend', () => {
-            produktContainer.remove();
-          });
-          */
-          /*
-          produktContainer.style.animationPlayState = 'running';
-          produktContainer.addEventListener('animationend', () => {
-          produktContainer.remove();
-          })*/
-
-
-
         })
         scanningBtn.classList.add(
           'rounded',
@@ -440,21 +419,17 @@ function renderEinkaufslisteHTML() {
     })
   }
 }
-renderEinkaufslisteHTML();
 
 
-function scanneEinkaufsProdukt(event) {
-/*
-  if(!scanner) {
-    initializeScanner();
-    scanner = true;
-  }
-  */
-  let result = {
-    description: 'apfel',
-    barcode: '002'
-  }
+
+
+
+async function scanneEinkaufsProdukt() {
+  /*
+  let result =  await fetchProductData('16118652')
   return result; 
+  */
+ scanProdukt();
 }
 
 
@@ -503,13 +478,9 @@ async function erstelleÄhnlicheProdukte(produktName) {
 
 //check ob das resultat (rückgabewert des eingescannten produktes) gleich dem Produkt in der Einkaufsliste ist. 
 //wird auch wieder ähnlicheProdukte erstellt umd zu prüfen ob das resultat allenfalls ein ähnlichesProdukt des einkaufsProduktes ist.
-function checkeGültigkeit(einkaufsProdukt, result) {
-  //let ähnlicheProdukte = erstelleÄhnlicheProdukte(result.description);
-  let ähnlicheProdukte = {
-    produktName: 'apfel',
-    übersetzung: 'apfel',
-    alleSynonyme: ['apfelfrucht', 'liebesapfel']
-  };
+async function checkeGültigkeit(einkaufsProdukt, result) {
+  let ähnlicheProdukte = await erstelleÄhnlicheProdukte(result.description ||  result.title);
+
   let ähnlichesProdukt;
   console.log(einkaufsProdukt)
   let gleichesProdukt = (Object.values(ähnlicheProdukte)[0].toLocaleLowerCase() === einkaufsProdukt.produktName) ? true : false;
@@ -519,23 +490,6 @@ function checkeGültigkeit(einkaufsProdukt, result) {
     ähnlichesProdukt = (synonym.toLocaleLowerCase() === einkaufsProdukt.produktName) ? true : false;
   })
   
-  console.log(gleichesProdukt)
-/*
-  Object.keys(ähnlicheProdukte).forEach((key) => {
-    if (key === 'produktName') {
-      gleichesProdukt = (ähnlicheProdukte[key].toLowerCase() === einkaufsProdukt.produktName) ? true : false;
-    } 
-    if (key === 'übersetzung') {
-      gleicheÜbersetzung = (ähnlicheProdukte[key].toLowerCase() === einkaufsProdukt.produktName) ? true : false;
-    } 
-    if (key === 'alleSynonyme') {
-      ähnlicheProdukte[key].forEach((synonym) => {
-        ähnlichesProdukt = (einkaufsProdukt.produktMenge === synonym) ? true : false;
-      })  
-    }
-  })
-*/
-
   let istGültig = (ähnlichesProdukt || gleichesProdukt || gleichesÜbersetzungsProdukt) ? true : false;
   return istGültig;
 }
@@ -544,12 +498,13 @@ function checkeGültigkeit(einkaufsProdukt, result) {
 //check ob die Menge die eingegeben wurde mit der menge übereinstimmt die in der einkaufsliste angegeben ist. 
 //auch möglich die Menge zu überschreiben.
 async function produktMengeCheck(istÜberschrieben, einkaufsProdukt, result) {
+  istÜberschrieben = false;
   console.log(istÜberschrieben)
   const inputValue = '';
   const { value: menge } = await Swal.fire({
     title: "Prüfung der Stückanzahl",
     input: "text",
-    html: `Wie viele Stück von <b>${istÜberschrieben ? result.description : einkaufsProdukt.produktName}</b> haben Sie im Einkaufskorb`,
+    html: `Wie viele Stück von <b>${istÜberschrieben ? result.description || result.title : einkaufsProdukt.produktName}</b> haben Sie im Einkaufskorb`,
     inputValue,
     showCancelButton: true,
     inputValidator: (value) => {
@@ -576,9 +531,15 @@ async function produktMengeCheck(istÜberschrieben, einkaufsProdukt, result) {
           cancelButtonText: "Nein, Menge ändern",
           confirmButtonText: "Ja, Menge übernehmen"
           
-        }).then((r) => {
+        }).then(async (r) => {
           if (r.isConfirmed) {
-            updateBestand(istÜberschrieben, einkaufsProdukt, Number(menge))
+            if (istÜberschrieben) {
+              updateBestand(istÜberschrieben, result, Number(menge));
+            } else {
+              updateBestand(istÜberschrieben, {...einkaufsProdukt, 'barcode' : result.barcode}, Number(menge));
+              console.log('test in produktMengeCheck')
+            }
+            //updateBestand(istÜberschrieben, einkaufsProdukt, Number(menge))
             Swal.fire({
               position: "top-end",
               icon: "success",
@@ -587,7 +548,7 @@ async function produktMengeCheck(istÜberschrieben, einkaufsProdukt, result) {
               timer: 1500
             });
           } else {
-            produktMengeCheck(istÜberschrieben, einkaufsProdukt, result)
+            await produktMengeCheck(istÜberschrieben, einkaufsProdukt, result)
           }
         })
       } else {
@@ -611,6 +572,8 @@ async function produktMengeCheck(istÜberschrieben, einkaufsProdukt, result) {
 
 //falls das result nicht mit dem einkaufsprodukt übereinstimmt kann das einkaufsprodukt überschrieben werden.
 function überschreibeProdukt(einkaufsProdukt, result) {
+  let istÜberschrieben = false;
+  let einkaufsliste = getEinkaufslisteFromLocalStorage();
   Swal.fire({
     title: `Fehler beim einscannen des Produktes`,
     html: `<p style="font-size: 16px;">Das eingescannte Produkt stimmt nicht mit dem Produkt in der Einkaufsliste überein</p><br>Eingescanntes Produkt: <b>${result.description}</b><br>Einkaufslistenprodukt: <b>${einkaufsProdukt.produktName}</b>`,
@@ -620,49 +583,58 @@ function überschreibeProdukt(einkaufsProdukt, result) {
     cancelButtonColor: "#d33",
     cancelButtonText: "Nein, nochmals scannen",
     confirmButtonText: "Ja, Einkaufslistenprodukt überschreiben"
-    /*
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.fire({
-        title: "Deleted!",
-        text: "Your file has been deleted.",
-        icon: "success"
-      });
-    }
-    */
-  }).then((r) => {
+
+  }).then(async (r) => {
     if (r.isConfirmed) {
-      produktMengeCheck(true, {...einkaufsProdukt, description: result.description}, result)
+      let vorhandenesEinkaufslisteProdukt = einkaufsliste.find(p => p.produktName === result.description) || einkaufsliste.find(p => p.produktName === result.title);
+      let index = einkaufsliste.findIndex(p => p.produktName === einkaufsProdukt.produktName);
+
+      console.log(vorhandenesEinkaufslisteProdukt)
+      if (vorhandenesEinkaufslisteProdukt) {
+        vorhandenesEinkaufslisteProdukt.einkaufsMenge += einkaufsProdukt.einkaufsMenge;
+        einkaufsliste.splice(index, 1);
+      } else {
+        einkaufsliste[index] = {id: generiereId(), produktName: result.description || result.title, einkaufsMenge: einkaufsProdukt.einkaufsMenge};
+      }
+
+      saveEinkaufslisteToLocalStorage(einkaufsliste);
+      renderEinkaufslisteHTML();
     }
   });
 }
 
-//bestand die bestnadsMenge des bestehenden Proudktes wird geupdatet oder wenn noch nicht vorhanden wird das einkaufsProdukt dem Bestand neu zugefügt
+//updateBestand fügt immer das einkaufsProdukt (produkt) dem Bestand zu.
 function updateBestand(istÜberschrieben, produkt, neueMenge) {
+  istÜberschrieben = false;
+
   let bestand = getBestandFromLocalStorage()
+  let einkaufsliste = getEinkaufslisteFromLocalStorage();
   let bestandsProdukt;
   if (istÜberschrieben) {
-    bestandsProdukt = bestand.find(p => p.description === produkt.description) 
+    bestandsProdukt = bestand.find(p => p.description === produkt.description) || bestand.find(p => p.title === produkt.title) || bestand.find(p => p.description === produkt.title)
   } else {
-    bestand.find(p => p.description === produkt.produktName)
+    bestandsProdukt = bestand.find(p => p.description === produkt.produktName) || bestand.find(p => p.title === produkt.produktName) 
   }
 
   console.log(bestandsProdukt)
   console.log(istÜberschrieben)
   console.log(produkt)
-  console.log(neueMenge)
 
   if(bestandsProdukt) { 
-    console.log(bestandsProdukt.menge)    
     bestandsProdukt.menge += neueMenge;
-    console.log(bestandsProdukt.menge)
     saveBestandToLocalStorage(bestand);
-    console.log(bestandsProdukt.menge)
 
   } else {
-    bestand.push({...produkt, description: produkt.produktName, menge: neueMenge});
+    //bestand.push({...produkt, description: produkt.produktName, menge: neueMenge});
+    bestand.push({...produkt, menge: neueMenge, description: produkt.produktName});
     saveBestandToLocalStorage(bestand);
   }
   console.log(bestand)
+  console.log(einkaufsliste)
+
+  let index = einkaufsliste.findIndex(p => p.produktName === produkt.produktName);
+  einkaufsliste.splice(index, 1);
+  saveEinkaufslisteToLocalStorage(einkaufsliste);
+  console.log(einkaufsliste)
   renderEinkaufslisteHTML()
 }

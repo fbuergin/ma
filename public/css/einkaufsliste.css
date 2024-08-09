@@ -1,15 +1,8 @@
+.scanning-btn {
+  display: block; 
+}
 
-/*
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.nochmals-scannen-btn {
+  display: none; 
+
 }
-#reader {
-  width: 600 px;
-}
-#result {
-  text-align: center;
-  font-size: 1.5rem;
-}
-*/

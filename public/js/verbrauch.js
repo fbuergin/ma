@@ -68,15 +68,12 @@ document.querySelector('.scanning-btn').addEventListener('click', () => {
       'shadow-xl',
       'hover:bg-green-600'
     )
-
+    */
 
     document.getElementById('html5-qrcode-anchor-scan-type-change').classList.add(
       'hover:text-green-600'
     )
-
-    */
-
-    
+    getState()
   }
 });
 
@@ -104,39 +101,30 @@ function initializeScanner() {
     scanner.render(success, error);
 }
 
-function success(result) {
+async function success(result) {
     document.querySelector('.nochmals-scannen-btn').style.display = "block"; 
     
     scanner.clear();
     document.getElementById('reader').remove();
-
-}
-
-
-/*
-//damit ich nicht qr-scanner verwenden muss weil schlechte kamera auf computer
-document.querySelector('.scanning-btn').addEventListener('click', () => {
-  getProduktData('7610057030054');
-});
-*/
-
-
-let neuesVerbrauchtesProdukt = '';
-
-
-async function getProduktData(result) {
-  try {
-    let upcCode = result;
-    neuesVerbrauchtesProdukt = await fetchProductData(upcCode); 
+    let neuesVerbrauchtesProdukt = await fetchProductData(result); 
     addToVerbrauch(neuesVerbrauchtesProdukt);
     renderVerbrauchHTML();
 
 
-  } catch (error) {
-    console.error('Fehler beim Abrufen der Daten:', error);
-   
-  }
 }
+
+document.querySelector('.scanning-btn').addEventListener('click', () => {
+  scanProdukt();
+})
+
+/*
+document.querySelector('.scanning-btn').addEventListener('click', async () => {
+  let produkt = await fetchProductData('4103990020006'); 
+  console.log(produkt);
+  addToVerbrauch(produkt);
+  renderVerbrauchHTML();
+});
+*/
 
 
 
@@ -148,6 +136,7 @@ function renderVerbrauchHTML() {
     const produktContainer = document.createElement('div');
     produktContainer.classList.add(
       'produkt-container', 
+      `produkt-container-${produkt.barcode}`, 
       'flex', 
       'items-center',
       'w-full',
@@ -159,36 +148,32 @@ function renderVerbrauchHTML() {
       'shadow-md',
       'bg-c2'
     );
-    //produktContainer.style.borderRadius = '10px';
-
-    console.log(produktContainer)
-
 
     const produktNameDiv = document.createElement('div');
+    produktNameDiv.textContent = produkt.description || produkt.title || produkt.barcode;
+    produktContainer.appendChild(produktNameDiv);
     produktNameDiv.classList.add(
       'produkt-name',
       'basis-1/4',
     );
-    produktNameDiv.textContent = produkt.description || produkt.title || produkt.barcode;
-    produktContainer.appendChild(produktNameDiv);
 
     const mengeDiv = document.createElement('div');
+    mengeDiv.textContent = produkt.menge;
+    produktContainer.appendChild(mengeDiv);
     mengeDiv.classList.add(
       'produkt-menge',
       'basis-1/4'
     );
-    mengeDiv.textContent = produkt.menge;
-    produktContainer.appendChild(mengeDiv);
 
     const buttonContainer = document.createElement('div');
     buttonContainer.classList.add(
       'button-container',
       'basis-1/2',
-
-
     );
 
     const plusButton = document.createElement('button');
+    plusButton.textContent = '+';
+    plusButton.dataset.produktCode = produkt.barcode;
     plusButton.classList.add(
       'plus-btn',
       'bg-green-400',
@@ -198,11 +183,31 @@ function renderVerbrauchHTML() {
       'rounded-full',
       'mr-2'
     );
-    plusButton.textContent = '+';
-    plusButton.dataset.produktCode = produkt.barcode;
+    plusButton.addEventListener('click', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = verbrauch.find(p => p.barcode === produktCode);
+      addToVerbrauch(produkt);
+    });
+
+    let intervalId;
+    let timeoutId;
+
+    plusButton.addEventListener('mousedown', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = verbrauch.find(p => p.barcode === produktCode);
+      addToVerbrauch(produkt);
+      timeoutId = setTimeout(function() {
+        intervalId = setInterval(function() {
+          addToVerbrauch(produkt);
+        }, 100); 
+      }, 700); 
+    });
+
     buttonContainer.appendChild(plusButton);
 
     const minusButton = document.createElement('button');
+    minusButton.textContent = '-';
+    minusButton.dataset.produktCode = produkt.barcode;
     minusButton.classList.add(
       'minus-btn',
       'bg-green-400',
@@ -211,90 +216,58 @@ function renderVerbrauchHTML() {
       'w-9',
       'rounded-full',
     );
-    minusButton.textContent = '-';
-    minusButton.dataset.produktCode = produkt.barcode;
+    minusButton.addEventListener('click', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = verbrauch.find(p => p.barcode === produktCode);
+      removeFromVerbrauch(produkt);
+    });
+
+    minusButton.addEventListener('mousedown', (event) => {
+      const produktCode = event.target.dataset.produktCode;
+      const produkt = verbrauch.find(p => p.barcode === produktCode);
+      removeFromVerbrauch(produkt);
+      timeoutId = setTimeout(function() {
+        intervalId = setInterval(function() {
+          removeFromVerbrauch(produkt);
+        }, 100); 
+      }, 700); 
+    });
+
     buttonContainer.appendChild(minusButton);
 
-    produktContainer.appendChild(buttonContainer);
+    document.addEventListener('mouseup', function(event) {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    });
 
+    produktContainer.appendChild(buttonContainer);
     verbrauchContainer.appendChild(produktContainer);
   });
 }
 
-
-function addToVerbrauch(neuesVerbrauchtesProdukt) {
-  const vorhandenesProdukt = verbrauch.find(produkt => produkt.barcode === neuesVerbrauchtesProdukt.barcode);
-
+function addToVerbrauch(produkt) {
+  const vorhandenesProdukt = verbrauch.find(p => p.description === produkt.description) || verbrauch.find(p => p.title === produkt.title) || verbrauch.find(p => p.description === produkt.title) || verbrauch.find(p => p.title === produkt.description);
   if (vorhandenesProdukt) {
     vorhandenesProdukt.menge++;
   } else {
-    verbrauch.push(neuesVerbrauchtesProdukt);
-    neuesVerbrauchtesProdukt.menge = 1;
-
+    verbrauch.push(produkt);
+    produkt.menge = 1;
   }
   saveVerbrauchToLocalStorage();
-  renderVerbrauchHTML(); 
+  renderVerbrauchHTML();
 }
 
-function removeFromverbrauch(produktCode) {
-  const index = verbrauch.findIndex(produkt => produkt.barcode === produktCode);
-  
-  if (index !== -1) {
+function removeFromVerbrauch(produkt) {
+  const vorhandenesProdukt = verbrauch.find(p => p.description === produkt.description) || verbrauch.find(p => p.title === produkt.title) || verbrauch.find(p => p.description === produkt.title) || verbrauch.find(p => p.title === produkt.description);
+
+  if (vorhandenesProdukt) {
+    const index = verbrauch.indexOf(vorhandenesProdukt);
     if (verbrauch[index].menge > 1) {
       verbrauch[index].menge--;
     } else {
-      verbrauch.splice(index, 1); 
+      verbrauch.splice(index, 1);
     }
-
-    saveVerbrauchToLocalStorage(); 
+    saveVerbrauchToLocalStorage();
     renderVerbrauchHTML();
   }
 }
-
-/*
-//plus und minus btn
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('plus-btn')) {
-    const produktName = event.target.dataset.produkt;
-    addToVerbrauch({description: produktName});
-  }
-});
-
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('minus-btn')) {
-    const produktName = event.target.dataset.produkt;
-    removeFromverbrauch(produktName);
-  }
-});
-*/
-
-//plus minus btn (upgrade)
-let intervalId;
-let timeoutId;
-
-document.addEventListener('mousedown', function(event) {
-  if (event.target.classList.contains('plus-btn')) {
-    const produktCode = event.target.dataset.produktCode;
-    addToVerbrauch({barcode: produktCode});
-    timeoutId = setTimeout(function() {
-      intervalId = setInterval(function() {
-        addToVerbrauch({barcode: produktCode});
-      }, 100); 
-    }, 700); 
-  } else if (event.target.classList.contains('minus-btn')) {
-    const produktCode = event.target.dataset.produktCode;
-    removeFromverbrauch(produktCode);
-    timeoutId = setTimeout(function() {
-      intervalId = setInterval(function() {
-        removeFromverbrauch(produktCode);
-      }, 100); 
-    }, 700); 
-  }
-});
-
-document.addEventListener('mouseup', function(event) {
-  clearInterval(intervalId);
-  clearTimeout(timeoutId);
-});
-
-

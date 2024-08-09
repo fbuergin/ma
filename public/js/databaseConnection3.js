@@ -12,8 +12,6 @@ export async function fetchTranslation(text, targetLang) {
     }
     const data = await response.json();
 
-    //console.log(`Empfangene Übersetzung von ${text}:`, data);
-
     // Weitere Verarbeitung der empfangenen Daten hier, falls erforderlich
     return data;
   } catch (error) {
