@@ -1,6 +1,7 @@
 export async function fetchSynonyms(suchbegriff) {
   try {
-    const response = await fetch('http://localhost:10000/getdata');
+    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const response = await fetch(`http://${URL}/getdata`);
     const data = await response.text();
 
     const lines = data.split('\n');

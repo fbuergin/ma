@@ -1,6 +1,7 @@
 export async function fetchProductData(upc) {
   try {
-    const response = await fetch(`http://localhost:10000/product/${upc}`);
+    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const response = await fetch(`http://${URL}/product/${upc}`);
     if (!response.ok) {
       throw new Error('Fehler beim Abrufen der Daten');
     }
@@ -19,25 +20,6 @@ export async function fetchProductData(upc) {
     throw error;
   }
 }
-
-
-
-/*
-//übungs funktion
-export function fetchProductData(upc) {
-  try {
-    let data = {
-      description: 'Taschentücher'
-    };
-    return data;
-  } catch (error) {
-    console.error('Fehler beim Abrufen der Daten:', error);
-    throw error;
-  }
-
-
-}
-*/
 
 export function error(err) {
   console.error(err);

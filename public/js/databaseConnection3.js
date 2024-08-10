@@ -1,6 +1,7 @@
 export async function fetchTranslation(text, targetLang) {
   try {
-    const response = await fetch(`http://localhost:10000/google-translate`, {
+    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const response = await fetch(`http://${URL}/google-translate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
