@@ -1,6 +1,6 @@
 export async function fetchTranslation(text, targetLang) {
   try {
-    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const URL = 'https://einkaufsmeister.onrender.com' //'http://localhost:10000'
     const response = await fetch(`http://${URL}/google-translate`, {
       method: 'POST',
       headers: {
@@ -24,7 +24,7 @@ export async function fetchTranslation(text, targetLang) {
 
 export async function detectLanguage(text) {
   try {
-    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const URL = 'https://einkaufsmeister.onrender.com' //'http://localhost:10000'
     const response = await fetch(`http://${URL}/detect-language`, {
       method: 'POST',
       headers: {
@@ -39,7 +39,6 @@ export async function detectLanguage(text) {
     }
 
     const data = await response.json();
-    //console.log(data.detectedLanguage)
     return data;
     
   } catch (error) {

@@ -1,6 +1,6 @@
 export async function fetchSynonyms(suchbegriff) {
   try {
-    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const URL = 'https://einkaufsmeister.onrender.com' //'http://localhost:10000'
     const response = await fetch(`http://${URL}/getdata`);
     const data = await response.text();
 
@@ -15,14 +15,13 @@ export async function fetchSynonyms(suchbegriff) {
       for (const word of words) {
         // Remove words in parentheses
         const cleanedWord = word.replace(/\(.*?\)/g, '').trim().toLowerCase();
-        if (cleanedWord === '') continue; // Skip if the word is empty after cleaning
-
+        if (cleanedWord === '') continue; 
         if (!synonyms[cleanedWord]) synonyms[cleanedWord] = [];
         synonyms[cleanedWord] = [
           ...synonyms[cleanedWord],
           ...words
-            .filter(w => w.trim().toLowerCase() !== cleanedWord) // Remove the cleaned word itself
-            .map(w => w.trim().toLowerCase().replace(/\(.*?\)/g, '')) // Remove words in parentheses from synonyms
+            .filter(w => w.trim().toLowerCase() !== cleanedWord) 
+            .map(w => w.trim().toLowerCase().replace(/\(.*?\)/g, ''))
         ];
       }
     }
@@ -30,10 +29,8 @@ export async function fetchSynonyms(suchbegriff) {
     const gefundeneSynonyme = synonyms[suchbegriff.toLowerCase()];
 
     if (gefundeneSynonyme) {
-      //console.log(gefundeneSynonyme);
       return gefundeneSynonyme;
     } else {
-      //console.log(`Keine Synonyme gefunden für: ${suchbegriff}`);
       return [];
     }
   } catch (error) {

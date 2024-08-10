@@ -1,6 +1,6 @@
 export async function fetchProductData(upc) {
   try {
-    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const URL = 'https://einkaufsmeister.onrender.com' //'http://localhost:10000'
     const response = await fetch(`http://${URL}/product/${upc}`);
     if (!response.ok) {
       throw new Error('Fehler beim Abrufen der Daten');
