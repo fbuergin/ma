@@ -24,7 +24,8 @@ export async function fetchTranslation(text, targetLang) {
 
 export async function detectLanguage(text) {
   try {
-    const response = await fetch(`http://localhost:10000/detect-language`, {
+    const URL = process.env.URL_Check === 'local' ? 'http://localhost:10000' : 'https://einkaufsmeister.onrender.com';
+    const response = await fetch(`http://${URL}/detect-language`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
