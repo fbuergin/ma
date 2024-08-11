@@ -173,6 +173,39 @@ async function produkteUndZutatenAbgleichen(menuPläne, aktualisierterBestand) {
 
 produkteUndZutatenAbgleichen(menuPläne, kreiereAktualisierterBestand(bestand, verbrauch))
 */
+function formatiereErstesWort(string) {
+  let worte = string.toLocaleLowerCase().split(' ');
+  let erstesWort = worte[0].charAt(0).toUpperCase() + worte[0].slice(1);
+  worte[0] = erstesWort; 
+  return worte.join(' ')
+}
+
+
+
+export function formatiereString(string) {
+  const ausnahmen = [
+    'der', 'die', 'das', 'ein', 'eine', 'einer', 'eines', 'einem', 'einen', 'dessen', 'deren', 'dem',
+    'den', 'auf', 'ab', 'mit', 'in', 'an', 'bei', 'nach', 'von', 'zu', 'über', 'unter', 'vor', 'hinter', 
+    'neben', 'zwischen', 'durch', 'gegen', 'ohne', 'um', 'bis', 'entlang', 'und', 'oder', 'aber', 'denn', 
+    'sondern', 'doch', 'sowie', 'sowohl', 'als', 'wie', 'entweder', 'noch', 'weder', 'ob', 'weil', 'dass', 
+    'wenn', 'falls', 'obwohl', 'während', 'sobald', 'bevor', 'nachdem', 'lecker', 'frisch', 'süss', 'sauer', 
+    'salzig', 'bitter', 'würzig', 'pikant', 'knusprig', 'zart', 'rot', 'orange', 'gelb', 'grün', 'blau', 'lila', 
+    'rosa', 'braun', 'schwarz', 'weiss', 'saftig', 'trocken', 'reif', 'unreif', 'fettig', 'mager', 'cremig', 
+    'hart', 'weich', 'geschmackvoll', 'fade', 'aromatisch', 'schmackhaft', 'mild', 'heiss', 'kalt', 'warm', 
+    'gebraten', 'gekocht', 'gegrillt', 'gross', 'klein'
+  ];
+  
+  
+  let worte = formatiereErstesWort(string).split(' ')
+  
+   
+  return worte.map(wort => {
+      if (ausnahmen.includes(wort)) {
+        return wort;
+      }
+      return wort.charAt(0).toUpperCase() + wort.slice(1);
+  }).join(' ');
+}
 
 
 //Zwischen array ungeordneteProvEinkaufsliste wird erstellt, damit dann die produkte besser abgefragt werden können.
@@ -226,7 +259,7 @@ function bereinigeProvEinkaufsliste() {
 //bereinigteProvEk wird durchgegegangen und die menuMengeTot wird der bestands.menge abgezogen um die einkaufsmenge zu erstellen
 function erstelleEinkaufsliste() {
   let bereinigteProvEinkaufsliste = bereinigeProvEinkaufsliste();
-  let aktualisierterBestand = erstelleAktualisiertenBestand(getBestandFromLocalStorage(), getVerbrauchFromLocalStorage());
+  let aktualisierterBestand = erstelleAktualisiertenBestand();
   let einkaufsliste = [] //getEinkaufslisteFromLocalStorage();
   let gleichesBestandsProdukt;
 
@@ -240,10 +273,10 @@ function erstelleEinkaufsliste() {
       //wenn die menge grösser oder 0 ist wird es nicht zu einkaufsliste zugefügt
       if (!neueMenge >= 0) {
         let einkaufsMenge = neueMenge * -1;
-        einkaufsliste.push({'id': Object.values(p)[0][0].id , 'produktName': Object.keys(p)[0], 'neueMenge': neueMenge, 'einkaufsMenge': einkaufsMenge})
+        einkaufsliste.push({'id': Object.values(p)[0][0].id , 'produktName': formatiereString(Object.keys(p)[0]), 'neueMenge': neueMenge, 'einkaufsMenge': einkaufsMenge})
       }
     } else {
-      einkaufsliste.push({'id': Object.values(p)[0][0].id ,'produktName': Object.keys(p)[0], 'einkaufsMenge': p.menuMengeTot})
+      einkaufsliste.push({'id': Object.values(p)[0][0].id ,'produktName': formatiereString(Object.keys(p)[0]), 'einkaufsMenge': p.menuMengeTot})
     }
   })
   console.log(bereinigteProvEinkaufsliste)
@@ -480,14 +513,14 @@ async function erstelleÄhnlicheProdukte(produktName) {
 //wird auch wieder ähnlicheProdukte erstellt umd zu prüfen ob das resultat allenfalls ein ähnlichesProdukt des einkaufsProduktes ist.
 async function checkeGültigkeit(einkaufsProdukt, result) {
   let ähnlicheProdukte = await erstelleÄhnlicheProdukte(result.description ||  result.title);
-
+  let einkaufsProduktName = einkaufsProdukt.produktname.toLocaleLowerCase();
   let ähnlichesProdukt;
-  console.log(einkaufsProdukt)
-  let gleichesProdukt = (Object.values(ähnlicheProdukte)[0].toLocaleLowerCase() === einkaufsProdukt.produktName) ? true : false;
-  let gleichesÜbersetzungsProdukt = (Object.values(ähnlicheProdukte)[1].toLocaleLowerCase() === einkaufsProdukt.produktName) ? true : false;
+
+  let gleichesProdukt = (Object.values(ähnlicheProdukte)[0].toLocaleLowerCase() === einkaufsProduktName) ? true : false;
+  let gleichesÜbersetzungsProdukt = (Object.values(ähnlicheProdukte)[1].toLocaleLowerCase() === einkaufsProduktName) ? true : false;
 
   Object.values(ähnlicheProdukte)[2].forEach((synonym) => {
-    ähnlichesProdukt = (synonym.toLocaleLowerCase() === einkaufsProdukt.produktName) ? true : false;
+    ähnlichesProdukt = (synonym.toLocaleLowerCase() === einkaufsProduktName) ? true : false;
   })
   
   let istGültig = (ähnlichesProdukt || gleichesProdukt || gleichesÜbersetzungsProdukt) ? true : false;

@@ -1,4 +1,5 @@
 import { fetchProductData, error } from "./databaseConnection.js";
+import { formatiereString } from "./einkaufsliste.js";
 
 let verbrauch = [];
 
@@ -150,7 +151,7 @@ function renderVerbrauchHTML() {
     );
 
     const produktNameDiv = document.createElement('div');
-    produktNameDiv.textContent = produkt.description || produkt.title || produkt.barcode;
+    produktNameDiv.textContent = formatiereString(produkt.description) || formatiereString(produkt.title) || formatiereString(produkt.barcode);
     produktContainer.appendChild(produktNameDiv);
     produktNameDiv.classList.add(
       'produkt-name',
