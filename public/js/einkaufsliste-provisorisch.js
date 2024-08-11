@@ -241,15 +241,29 @@ export function saveProvEinkaufslisteToLocalStorage(provEinkaufsliste) {
   localStorage.setItem('provEinkaufsliste', JSON.stringify(provEinkaufsliste))
 }
 
+
+function istNichtUngültig(value1, value2) {
+  let istNichtUndefined = value1 !== undefined && value2 !== undefined;
+  let istNichtEmpty = value1 !== '' && value2 !== '';
+  let istNichtNull = value1 !== null && value2 !== null;
+
+  return istNichtUndefined && istNichtEmpty && istNichtNull ? true : false;
+}
+
+
 //Die Produkte des Verbrauchs werden dem Bestand abgezogen
 export function erstelleAktualisiertenBestand() {
   let aktualisierterBestand = [];
   let bestand = getBestandFromLocalStorage();
   let verbrauch = getVerbrauchFromLocalStorage();
-
+  
   bestand.forEach((bestandsItem) => {
-    let gefundenInVerbrauch = verbrauch.find(verbrauchsItem => verbrauchsItem.barcode === bestandsItem.barcode);
-    
+    let gefundenInVerbrauch = verbrauch.find(verbrauchsItem => 
+      verbrauchsItem.description === bestandsItem.description && istNichtUngültig(verbrauchsItem.description, bestandsItem.description) ||
+      verbrauchsItem.title === bestandsItem.title && istNichtUngültig(verbrauchsItem.title, bestandsItem.title) ||
+      verbrauchsItem.description === bestandsItem.title && istNichtUngültig(verbrauchsItem.description, bestandsItem.title) ||
+      verbrauchsItem.title === bestandsItem.description && istNichtUngültig(verbrauchsItem.title, bestandsItem.description)
+    );    
     if (gefundenInVerbrauch) {
       let neueMenge = bestandsItem.menge - gefundenInVerbrauch.menge;
       bestandsItem = { ...bestandsItem, menge: neueMenge };
@@ -257,15 +271,32 @@ export function erstelleAktualisiertenBestand() {
     aktualisierterBestand.push(bestandsItem);
   });
 
+  //wenn das produkt noch nicht im Vorrat ist dann soll die gesamte Verbrauchte Menge zugefügt werden
   verbrauch.forEach((verbrauchsItem) => {
-    let gefundenInBestand = bestand.find(bestandsItem => verbrauchsItem.barcode === bestandsItem.barcode);
+    let gefundenInBestand = bestand.find(bestandsItem => 
+      bestandsItem.description === verbrauchsItem.description && istNichtUngültig(bestandsItem.description, verbrauchsItem.description) ||
+      bestandsItem.title === verbrauchsItem.title && istNichtUngültig(bestandsItem.title, verbrauchsItem.title) ||
+      bestandsItem.description === verbrauchsItem.title && istNichtUngültig(bestandsItem.description, verbrauchsItem.title) ||
+      bestandsItem.title === verbrauchsItem.description && istNichtUngültig(bestandsItem.title, verbrauchsItem.description)
+    );
+    
+    console.log('verbrauch: ' + verbrauchsItem.description)
+    console.log('verbrauch: ' + verbrauchsItem.title)
+    bestand.forEach((i) => {
+      console.log('bestand: ' + i.description)
+      console.log('bestand: ' + i.title)
+
+    })
+    
 
     if (!gefundenInBestand) {
       let neueMenge = verbrauchsItem.menge * -1;
+      console.log('aeg')
       let newItem = { ...verbrauchsItem, menge: neueMenge };
       aktualisierterBestand.push(newItem);
     }
   });
+  
   return aktualisierterBestand;
 }
 console.log('AkBestand:', erstelleAktualisiertenBestand(getBestandFromLocalStorage(), getVerbrauchFromLocalStorage()));
