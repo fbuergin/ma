@@ -21,7 +21,7 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 
 // Statische Dateien im "public" Verzeichnis servieren
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 //app.use(express.static(path.join(__dirname, 'node_modules/@google-cloud/translate')));
 
 
@@ -31,9 +31,8 @@ app.use(cors());
 app.use(express.json());
 
 
-// Route für die Wurzel-URL
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'Bestand.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'Bestand.html'));
 });
 
 
