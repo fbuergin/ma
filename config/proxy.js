@@ -21,7 +21,7 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 
 // Statische Dateien im "public" Verzeichnis servieren
-app.use(express.static(path.join(__dirname, '..', 'public', 'Bestand.html')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/api', express.static(path.join(__dirname, '..', 'api')));
 
 
