@@ -37,7 +37,7 @@ app.use(express.json());
 
 // Route für die Wurzel-URL
 app.get('/', (req, res) => {
-  res.sendFile(express.static(path.join(__dirname, '..', 'public', 'Bestand.html')));
+  res.sendFile(path.join(__dirname, '..', 'public', 'Bestand.html'));
 });
 
 
