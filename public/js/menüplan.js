@@ -274,16 +274,6 @@ class Menüplan {
   }
 
   renderMenusFromStock() {
-    const testBtn = document.createElement('button');
-    testBtn.classList.add(
-      'bg-white',
-      'h-6',
-      'w-6'
-    );
-    testBtn.addEventListener('click', (event) => {
-      console.log(this.menuPlan);
-    })
-    
     //alle elemente werden erstellt und gestylt
     const menusContainer = document.querySelector('.menus-container');
     menusContainer.innerHTML = '';
