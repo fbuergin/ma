@@ -4,9 +4,10 @@ module.exports = {
     "./public/*.{html,js}",
     "./public/js/bestand.js",
     "./public/js/verbrauch.js",
-    "./public/js/menüplan-copy.js",
+    "./public/js/menüplan.js",
     "./public/js/einkaufsliste-provisorisch.js",
-    "./public/js/einkaufsliste.js"
+    "./public/js/einkaufsliste.js",
+    "./public/js/inventarVerwaltung.js"
 
   ],
   theme: {
@@ -18,6 +19,9 @@ module.exports = {
         c4: '#A3B18A',
         c5: '#DAD7CD'
 
+      },
+      height: {
+        '2/3': '66.666667%'
       }
     }, 
   },

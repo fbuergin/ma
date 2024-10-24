@@ -1,19 +1,28 @@
-export function kreiereMenus(localStorageKey) {
-  let zutatenBearbeitenStatus;
-  let menuBearbeitenStatus = false;
-  let zutatenBearbeitenId;
-  let menuPlan;
+class Menüplan {
+  zutatenBearbeitenStatus = false;
+  menuBearbeitenStatus = false;
+  zutatenBearbeitenId;
+  menuPlan;
+  localStorageKey;
 
-  function saveToLocalStorage() {
-    localStorage.setItem(localStorageKey, JSON.stringify(menuPlan));
+  constructor(localStorageKey) {
+    this.localStorageKey = localStorageKey;
+    this.loadMenüplanFromLocalStorage(); 
+    this.saveMenüplanToLocalStorage();
+    this.renderMenusFromStock();
+    this.eventListeners();
   }
 
-  function getFromLocalStorage() {
-    const savedMenus = localStorage.getItem(localStorageKey);
-    if (savedMenus) {
-      menuPlan = JSON.parse(savedMenus);
+  saveMenüplanToLocalStorage() {
+    localStorage.setItem(this.localStorageKey, JSON.stringify(this.menuPlan));
+  }
+
+  loadMenüplanFromLocalStorage() {
+    const savedMenus = localStorage.getItem(this.localStorageKey);
+    if (savedMenus && savedMenus !== 'undefined') {
+      this.menuPlan = JSON.parse(savedMenus);
     } else {
-      menuPlan = [{
+      this.menuPlan = [{
         id: 1,
         tag: 'Montag',
         name: '',
@@ -49,17 +58,13 @@ export function kreiereMenus(localStorageKey) {
         name: '',
         zutaten: []
       }];
+
+
     }
   }
 
-  window.onload = function() {
-    getFromLocalStorage(); 
-    renderMenusFromStock();
-    saveToLocalStorage();
 
-  };
-
-  function addMenuToMenus(event) {
+  addMenuToMenus(event) {
     if (event.keyCode === 13) {
       let menuName = event.target.value;
       let menuNameId = event.target.dataset.menunameid;
@@ -74,20 +79,21 @@ export function kreiereMenus(localStorageKey) {
         }
       })
 
-      let index = menuPlan.findIndex(menu => menu.id === Number(menuNameId));
-      menuPlan[index].name = menuName;
+      let index = this.menuPlan.findIndex(menu => menu.id === Number(menuNameId));
+      this.menuPlan[index].name = menuName;
 
-      renderMenusFromStock();
-      saveToLocalStorage();
+      this.renderMenusFromStock();
+      this.saveMenüplanToLocalStorage();
     }
   }
 
 
-  function addZutatenToMenus(event) {
+  addZutatenToMenus(event) {
     let zutatName = event.target.value; 
     let zutatNameId = event.target.dataset.zutatenid;
     let mengeInput = document.querySelector(`.menge-input-${zutatNameId}`);
     let menge = mengeInput.value;
+
     if (event.keyCode === 13) {
       if (!menge) {
         Swal.fire({
@@ -98,20 +104,18 @@ export function kreiereMenus(localStorageKey) {
         return;
       }
 
-      let index = menuPlan.findIndex(menu => menu.id === Number(zutatNameId));
-      menuPlan[index].zutaten.push({ produktName: zutatName, menge: menge });
+      let index = this.menuPlan.findIndex(menu => menu.id === Number(zutatNameId));
+      this.menuPlan[index].zutaten.push({ produktName: zutatName, menge: menge });
       event.target.value = '';
       mengeInput.value = '';
 
-      renderMenusFromStock();
-      saveToLocalStorage();
+      this.renderMenusFromStock();
+      this.saveMenüplanToLocalStorage();
     }
   }
 
-  function addMengeToMenus(event) {
+  addMengeToMenus(event) {
     if (event.keyCode === 13) {
-      console.log(zutatenBearbeitenStatus)
-
       let menge = event.target.value.trim();
       let mengeId = event.target.dataset.mengeid;
       let zutatenInput = document.querySelector(`.zutaten-input-${mengeId}`);
@@ -141,25 +145,23 @@ export function kreiereMenus(localStorageKey) {
       button.classList.add('block');
 
 
-      let index = menuPlan.findIndex(menu => menu.id === Number(mengeId));
-      let zutatIndex = menuPlan[index].zutaten.length;
+      let index = this.menuPlan.findIndex(menu => menu.id === Number(mengeId));
+      let zutatIndex = this.menuPlan[index].zutaten.length;
 
-      menuPlan[index].zutaten.push({produktName: zutatName, menge: menge});
+      this.menuPlan[index].zutaten.push({produktName: zutatName, menge: menge});
 
     
       zutatenListe.classList.add('zutaten-reihe')
-      zutatenListe.innerHTML += menuPlan[index].zutaten[zutatIndex].produktName + ': ' + menge + ', ';
+      zutatenListe.innerHTML += this.menuPlan[index].zutaten[zutatIndex].produktName + ': ' + menge + ', ';
 
-      renderMenusFromStock();
-      console.log('addMengeToMenus')
-      console.log(zutatenBearbeitenStatus)
-      saveToLocalStorage();
+      this.renderMenusFromStock();
+      this.saveMenüplanToLocalStorage();
 
     }
   }
 
-  function addWeitereZutaten(event) {
-    if(zutatenBearbeitenStatus) {
+  addWeitereZutaten(event) {
+    if(this.zutatenBearbeitenStatus) {
       Swal.fire({
         title: "Hinweis",
         text: 'Speichern Sie zuerst die aktuelle Bearbeitung, indem Sie "√" drücken bevor, Sie weitere Zutaten anfügen.',
@@ -191,22 +193,23 @@ export function kreiereMenus(localStorageKey) {
       zutatenInput.value = ''; 
       mengeInput.value = '';
 
-      saveToLocalStorage();
+      this.saveMenüplanToLocalStorage();
     }
   }
 
 
-  function zutatAnfügen(index, id) {
-    const menu = menuPlan.find(menu => menu.id === id)
+  zutatAnfügen(index, id) {
+    const menu = this.menuPlan.find(menu => menu.id === id)
     const zutat = menu.zutaten[index]
 
     zutat.menge ++;
-    renderMenusFromStock();
-    saveToLocalStorage();
+    this.renderMenusFromStock();
+    this.saveMenüplanToLocalStorage();
   }
 
-  function zutatEntfernen(index, id) {
-    const menu = menuPlan.find(menu => menu.id === id)
+
+  zutatEntfernen(index, id) {
+    const menu = this.menuPlan.find(menu => menu.id === id)
     const zutat = menu.zutaten[index]
 
     if (zutat.menge > 1) {
@@ -215,48 +218,48 @@ export function kreiereMenus(localStorageKey) {
       menu.zutaten.splice(index, 1)
 
       if (menu.zutaten.length === 0) {
-        zutatenBearbeitenStatus = false;
-        zutatenBearbeitenId = null;
+        this.zutatenBearbeitenStatus = false;
+        this.zutatenBearbeitenId = null;
       }  
     }
 
-    renderMenusFromStock();
-    saveToLocalStorage();
+    this.renderMenusFromStock();
+    this.saveMenüplanToLocalStorage();
   }
 
-  function menuBearbeiten(event) {
+  menuBearbeiten(event) {
     const id = event.target.dataset.bearbeitungsid;
     const zutatenInput = document.querySelector(`.zutaten-input-${id}`)
     const mengeInput = document.querySelector(`.menge-input-${id}`)
 
-    menuBearbeitenStatus = true;
-    menuPlan[id -1].name = ''
+    this.menuBearbeitenStatus = true;
+    this.menuPlan[id -1].name = ''
 
     event.target.textContent = 'Speichern'
 
-    saveToLocalStorage();
-    renderMenusFromStock();
+    this.saveMenüplanToLocalStorage();
+    this.renderMenusFromStock();
   
   }
 
-  function zutatenBearbeiten(event) {
+  zutatenBearbeiten(event) {
     const id = event.target.dataset.bearbeitungsid;
     const plusBtns = document.querySelectorAll(`.plus-btn-${id}`);
     const minusBtns = document.querySelectorAll(`.minus-btn-${id}`);
     const bearbeitungsBtn = document.querySelector(`.zutaten-bearbeitungs-btn-${id}`)
 
-    zutatenBearbeitenId = id;
+    this.zutatenBearbeitenId = id;
   
     plusBtns.forEach(btn => btn.classList.remove('hidden'));
     minusBtns.forEach(btn => btn.classList.remove('hidden'));
   
     bearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${id}"  xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#4ADE80"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>`;
     
-    zutatenBearbeitenStatus = true;
+    this.zutatenBearbeitenStatus = true;
   }
   
-  function zutatenBearbeitungSpeichern(event) {
-    if (zutatenBearbeitenStatus) {
+  zutatenBearbeitungSpeichern(event) {
+    if (this.zutatenBearbeitenStatus) {
       const id = event.target.dataset.bearbeitungsid;
       const plusBtns = document.querySelectorAll(`.plus-btn-${id}`);
       const minusBtns = document.querySelectorAll(`.minus-btn-${id}`);
@@ -266,11 +269,11 @@ export function kreiereMenus(localStorageKey) {
       minusBtns.forEach(btn => btn.classList.add('hidden'));
   
       speicherBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${id}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
-      zutatenBearbeitenStatus = false;
+      this.zutatenBearbeitenStatus = false;
     }
   }
-  
-  function renderMenusFromStock() {
+
+  renderMenusFromStock() {
     const testBtn = document.createElement('button');
     testBtn.classList.add(
       'bg-white',
@@ -278,8 +281,7 @@ export function kreiereMenus(localStorageKey) {
       'w-6'
     );
     testBtn.addEventListener('click', (event) => {
-      console.log(zutatenBearbeitenStatus);
-
+      console.log(this.menuPlan);
     })
     
     //alle elemente werden erstellt und gestylt
@@ -287,16 +289,27 @@ export function kreiereMenus(localStorageKey) {
     menusContainer.innerHTML = '';
     menusContainer.appendChild(testBtn);
 
-    menuPlan.forEach(menu => {
+    this.menuPlan.forEach(menu => {
+      const menuEintragStyleContainer = document.createElement('div');
+      menusContainer.appendChild(menuEintragStyleContainer);
+      menuEintragStyleContainer.classList.add(
+        'flex',
+        'items-center',
+        'justify-center',
+        'bg-c2',
+        'rounded-lg',
+        'mx-5',
+        'ml-7',
+      )
+
       const menuEintragContainer = document.createElement('div');
-      menusContainer.appendChild(menuEintragContainer);
+      menuEintragStyleContainer.appendChild(menuEintragContainer);
       menuEintragContainer.classList.add(
         `menu-eintrag-container-${menu.id}`,
         'flex',
-        'ml-7',
+
         'bg-c2',
         'py-2',
-        'rounded-lg'
       );
 
       const menuTagContainer = document.createElement('div');
@@ -333,14 +346,15 @@ export function kreiereMenus(localStorageKey) {
 
       const menuNameInput = document.createElement('input');
       menuNameInput.type = 'text';
-      menuNameInput.placeholder = 'Menu';
+      menuNameInput.placeholder = 'Menü';
       menuNameInput.dataset.menunameid = menu.id;
       menuNameContainer.appendChild(menuNameInput);
       menuNameInput.classList.add(
+        'menu-name-input',
         'px-4',
         'py-1',
         'rounded',
-        'bg-gray-600',
+        'bg-gray-800',
         'border',
         'border-neutral-800'
 
@@ -378,6 +392,7 @@ export function kreiereMenus(localStorageKey) {
       const inputContainer = document.createElement('div');
       menuZutatenContainer.appendChild(inputContainer);
       inputContainer.classList.add(
+        `input-container-${menu.id}`,
         'input-container',
         'flex'
       );
@@ -386,7 +401,7 @@ export function kreiereMenus(localStorageKey) {
       const zutatenInput = document.createElement('input');
       zutatenInput.type = 'text';
       zutatenInput.dataset.zutatenid = menu.id;
-      zutatenInput.placeholder = 'Zutaten';
+      zutatenInput.placeholder = 'Zutat';
       inputContainer.appendChild(zutatenInput);
       zutatenInput.classList.add(
         `zutaten-input-${menu.id}`, 
@@ -395,7 +410,7 @@ export function kreiereMenus(localStorageKey) {
         'px-4',
         'py-1',
         'rounded',
-        'bg-gray-600',
+        'bg-gray-800',
         'border',
         'border-neutral-800'
       );
@@ -413,7 +428,7 @@ export function kreiereMenus(localStorageKey) {
         'px-4',
         'py-1',
         'rounded',
-        'bg-gray-600',
+        'bg-gray-800',
         'border',
         'border-neutral-800'
       );
@@ -425,7 +440,7 @@ export function kreiereMenus(localStorageKey) {
         'flex',
         'items-center',
         'justify-center'
-      );
+      ); 
       menuZutatenContainer.appendChild(zutatenListeContainer);
 
       const zutatenListe = document.createElement('ul');
@@ -447,9 +462,6 @@ export function kreiereMenus(localStorageKey) {
       const weitereZutatenBtn = document.createElement('button');
       weitereZutatenBtn.innerHTML = `<svg class="hover:fill-green-600" data-reiheid="${menu.id}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#4ADE80"><path d="M640-121v-120H520v-80h120v-120h80v120h120v80H720v120h-80ZM160-240v-80h283q-3 21-2.5 40t3.5 40H160Zm0-160v-80h386q-23 16-41.5 36T472-400H160Zm0-160v-80h600v80H160Zm0-160v-80h600v80H160Z"/></svg>`;
       weitereZutatenBtn.dataset.reiheid = menu.id;
-      weitereZutatenBtn.addEventListener('click', (event) => {
-        addWeitereZutaten(event);
-      });
       weitereZutatenContainer.appendChild(weitereZutatenBtn);
       weitereZutatenBtn.classList.add(
         `weitere-zutaten-${menu.id}`, 
@@ -463,10 +475,12 @@ export function kreiereMenus(localStorageKey) {
       const zutatenBearbeitungsContanier = document.createElement('div')
       menuZutatenContainer.appendChild(zutatenBearbeitungsContanier);
       zutatenBearbeitungsContanier.classList.add(
+        'zutaten-bearbeitungs-container',
         'flex',
         'justify-center',
         'items-center'
       )
+     
 
       const zutatenBearbeitungsBtn = document.createElement('button');
       zutatenBearbeitungsBtn.classList.add(
@@ -476,192 +490,175 @@ export function kreiereMenus(localStorageKey) {
       zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menu.id}"  xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
       zutatenBearbeitungsBtn.dataset.bearbeitungsid = menu.id;
       zutatenBearbeitungsContanier.appendChild(zutatenBearbeitungsBtn);
-      zutatenBearbeitungsBtn.addEventListener('click', (event) => {
-        if (!zutatenBearbeitenStatus) {
-          zutatenBearbeiten(event);
 
-        } else if (event.target.parentElement.dataset.bearbeitungsid !== zutatenBearbeitenId){
+        // Menüname anzeigen oder bearbeiten
+      this.toggleMenuNameDisplay(menu, menuNameInput, menuNameParagraph, menuBearbeitungsBtn);
+
+      // Zutaten anzeigen oder bearbeiten
+      this.toggleZutatenDisplay(menu, zutatenInput, mengeInput, zutatenListeContainer, menuBearbeitungsBtn);
+
+      //Weitere Zutaten Btn anzeigen oder inputs
+      this.toggleWeitereZutatenBtn(weitereZutatenBtn, zutatenBearbeitungsBtn, menu)
+      // Zutatenliste rendern
+      this.renderZutatenListe(menu, zutatenListe, zutatenBearbeitungsBtn, this.zutatenBearbeitenStatus, this.zutatenBearbeitenId);
+    });
+  }
+
+
+  renderZutatenListe(menu, zutatenListe, zutatenBearbeitungsBtn, zutatenBearbeitenStatus, zutatenBearbeitenId) {
+    menu.zutaten.forEach((zutat, index) => {
+      const zutatenListenEintrag = document.createElement('li');
+      zutatenListenEintrag.classList.add(
+        `zutaten-liste-eintrag-${menu.id}`,
+        'zutaten-liste-eintrag',
+        'flex',
+        'items-center',
+        'justify-center'
+      );
+      zutatenListenEintrag.textContent = `${zutat.produktName}: ${zutat.menge}`;
+      zutatenListe.appendChild(zutatenListenEintrag);
+  
+      const plusBtn = this.createPlusButton(menu.id, index);
+      const minusBtn = this.createMinusButton(menu.id, index);
+  
+      zutatenListenEintrag.appendChild(plusBtn);
+      zutatenListenEintrag.appendChild(minusBtn);
+  
+      this.togglePlusMinusButtons(plusBtn, minusBtn, menu.id, zutatenBearbeitungsBtn);
+    });
+  }
+
+
+  createPlusButton(menuId, index) {
+    const plusBtn = document.createElement('button');
+    plusBtn.innerHTML = `<svg class="transition ease-in-out delay-50 duration-200 hover:fill-green-600 hover:w-6 hover:h-6" xmlns="http://www.w3.org/2000/svg" height="15" viewBox="0 -960 960 960" width="15" fill="#4ADE80"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>`;
+    plusBtn.classList.add(`plus-btn-${menuId}`, 'plus-btn', 'flex', 'items-center', 'justify-center', 'h-5', 'w-5', 'ml-2');
+    plusBtn.addEventListener('click', (event) => {
+      this.zutatAnfügen(index, menuId, event);
+    });
+    return plusBtn;
+  }
+  
+  createMinusButton(menuId, index) {
+    const minusBtn = document.createElement('button');
+    minusBtn.innerHTML = `<svg class="transition ease-in-out delay-50 duration-200 hover:fill-red-700 hover:w-6 hover:h-6" xmlns="http://www.w3.org/2000/svg" height="15" viewBox="0 -960 960 960" width="15" fill="#F50538"><path d="M200-440v-80h560v80H200Z"/></svg>`;
+    minusBtn.classList.add(`minus-btn-${menuId}`, 'minus-btn', 'flex', 'items-center', 'justify-center', 'h-5', 'w-5');
+    minusBtn.addEventListener('click', () => {
+      this.zutatEntfernen(index, menuId);
+    });
+    return minusBtn;
+  }
+  
+
+  togglePlusMinusButtons(plusBtn, minusBtn, menuId, zutatenBearbeitungsBtn) {
+    if (this.zutatenBearbeitenStatus) {
+      document.querySelectorAll('.plus-btn').forEach((button) => {
+        if (button.classList.contains(`plus-btn-${this.zutatenBearbeitenId}`)) {
+          plusBtn.classList.remove('hidden');
+          minusBtn.classList.remove('hidden');
+          plusBtn.classList.add('inline-block');
+          minusBtn.classList.add('inline-block');
+        } else {
+          plusBtn.classList.add('hidden');
+          minusBtn.classList.add('hidden');
+          plusBtn.classList.remove('inline-block');
+          minusBtn.classList.remove('inline-block');
+        }
+      })
+
+      if (zutatenBearbeitungsBtn.classList.contains(`zutaten-bearbeitungs-btn-${this.zutatenBearbeitenId}`)) {
+        zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menuId}"  xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#4ADE80"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>`;
+      } else {
+        zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menuId}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
+      }
+    } else {
+      plusBtn.classList.add('hidden');
+      minusBtn.classList.add('hidden');
+    }
+  }
+  
+
+  toggleWeitereZutatenBtn(weitereZutatenBtn, zutatenBearbeitungsBtn, menu) {
+    if (menu.zutaten.length > 0) {
+      weitereZutatenBtn.classList.remove('hidden');
+      weitereZutatenBtn.classList.add('block');
+      zutatenBearbeitungsBtn.classList.remove('hidden');
+      zutatenBearbeitungsBtn.classList.add('block');
+    } else {
+      weitereZutatenBtn.classList.add('hidden');
+      weitereZutatenBtn.classList.remove('block');
+      zutatenBearbeitungsBtn.classList.add('hidden');
+      zutatenBearbeitungsBtn.classList.remove('block');
+    }
+  }
+  
+
+  toggleMenuNameDisplay(menu, menuNameInput, menuNameParagraph, menuBearbeitungsBtn) {
+    if (menu.name) {
+      menuNameParagraph.innerHTML = menu.name;
+      menuNameInput.classList.add('hidden');
+      menuBearbeitungsBtn.classList.add('block');
+    } else {
+      menuNameInput.classList.add('block');
+      menuBearbeitungsBtn.classList.add('hidden');
+    }
+  }
+  
+  toggleZutatenDisplay(menu, zutatenInput, mengeInput, zutatenListeContainer, zutatenBearbeitungsBtn) {
+    if (menu.zutaten.length > 0) {
+      zutatenInput.classList.add('hidden');
+      mengeInput.classList.add('hidden');
+      zutatenListeContainer.classList.add('block');
+    } else {
+      zutatenListeContainer.classList.add('flex');
+      zutatenInput.classList.add('block');
+      mengeInput.classList.add('block');
+      zutatenBearbeitungsBtn.classList.add('hidden');
+    }
+  }
+
+
+
+
+  eventListeners() {  
+    document.addEventListener('click', (event) => {
+      let element = event.target; 
+      while (element.nodeName.toLowerCase() !== 'button') {
+        element = element.parentElement;
+      }
+
+
+      if (element.classList.contains('weitere-zutaten')) {
+        this.addWeitereZutaten(event);
+      } else if (element.classList.contains('menu-bearbeitungs-btn')) {
+        this.menuBearbeiten(event);
+      } else if (element.classList.contains('zutaten-bearbeitungs-btn')) {
+        if (!this.zutatenBearbeitenStatus) {
+          this.zutatenBearbeiten(event);
+        } else if (element.dataset.bearbeitungsid !== this.zutatenBearbeitenId) {
           Swal.fire({
             title: "Hinweis",
             text: 'Speichern Sie zuerst die aktuelle Bearbeitung, indem Sie "√" drücken bevor, Sie weitere Zutaten bearbeiten.',
             icon: "info",
           });
         } else {
-          zutatenBearbeitungSpeichern(event);
+          this.zutatenBearbeitungSpeichern(event);
         }
-      });
-     
-
-
-      //check ob der menuName oder ein Input angezeigt werden soll
-      if (menu.name) {
-        menuNameParagraph.innerHTML += menu.name;
-
-        menuNameInput.classList.add('hidden');
-        menuBearbeitungsBtn.classList.add('block');
-      } else {
-          menuNameInput.classList.add('block');
-          menuBearbeitungsBtn.classList.add('hidden');
-      }
-
-      //check ob die zutaten in der liste oder die beiden inputs angezeigt werden sollen
-      if (menu.zutaten.length > 0) {
-        zutatenInput.classList.add('hidden');
-        mengeInput.classList.add('hidden');
-        zutatenListeContainer.classList.add('block');
-
-        const zutatenListeElement = document.querySelector(`.zutaten-liste-${menu.id}`);
-        
-        menu.zutaten.forEach((zutat, index) => {
-          const zutatenListenEintrag = document.createElement('li');
-          zutatenListenEintrag.classList.add(
-            `zutaten-liste-eintrag-${menu.id}`,
-            'zutaten-liste-eintrag',
-            'flex',
-            'items-center',
-            'justify-center'
-          )
-          zutatenListenEintrag.textContent = `${zutat.produktName}: ${zutat.menge}`;
-          zutatenListeElement.appendChild(zutatenListenEintrag);
-
-
-          const plusBtn = document.createElement('button');
-          const minusBtn = document.createElement('button');
-          plusBtn.innerHTML = `<svg class="transition ease-in-out delay-50 duration-200 hover:fill-green-600 hover:w-6 hover:h-6" xmlns="http://www.w3.org/2000/svg" height="15" viewBox="0 -960 960 960" width="15" fill="#4ADE80"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>`;
-          minusBtn.innerHTML = `<svg class="transition ease-in-out delay-50 duration-200 hover:fill-red-700 hover:w-6 hover:h-6" xmlns="http://www.w3.org/2000/svg" height="15" viewBox="0 -960 960 960" width="15" fill="#F50538"><path d="M200-440v-80h560v80H200Z"/></svg>`;
-          plusBtn.classList.add(
-            `plus-btn-${menu.id}`,
-            'plus-btn',
-            'flex',
-            'items-center',
-            'justify-center',
-            'h-5',
-            'w-5',
-            'ml-2',
-          );
-
-          minusBtn.classList.add(
-            `minus-btn-${menu.id}`,
-            'minus-btn',
-            'flex',
-            'items-center',
-            'justify-center',
-            'h-5',
-            'w-5',
-          );
-
-          plusBtn.addEventListener('click', (event) => {
-            zutatAnfügen(index, menu.id, event);
-    
-          })
-          minusBtn.addEventListener('click', () => {
-              zutatEntfernen(index, menu.id);
-      
-          })
-
-          zutatenListenEintrag.appendChild(plusBtn);
-          zutatenListenEintrag.appendChild(minusBtn);
-
-          //checkt ob die plus und minus btns für die zutaten angezeigt werden sollen, basierend auf zutatenBearbeitenStatus
-          if (zutatenBearbeitenStatus) {
-            if (zutatenBearbeitenId === menu.id) {
-              plusBtn.classList.remove('hidden');
-              minusBtn.classList.remove('hidden');
-              console.log('test1')
-
-              plusBtn.classList.add('inline-block');
-              minusBtn.classList.add('inline-block');
-
-            } else {
-              plusBtn.classList.add('hidden');
-              minusBtn.classList.add('hidden');
-              plusBtn.classList.remove('inline-block');
-              minusBtn.classList.remove('inline-block');
-              console.log('test2')
-            }
-
-            if (zutatenBearbeitungsBtn.classList.contains(`zutaten-bearbeitungs-btn-${zutatenBearbeitenId}`)) {
-              zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menu.id}"  xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#4ADE80"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>`
-            } else if (mengeInput.style.display === 'block'){
-              zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menu.id}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
-            } else {
-              zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menu.id}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
-            }
-
-          } else if(!zutatenBearbeitenStatus) {
-            plusBtn.classList.remove('inline-block');
-            minusBtn.classList.remove('inline-block');           
-            plusBtn.classList.add('hidden');
-            minusBtn.classList.add('hidden');
-            zutatenBearbeitungsBtn.innerHTML = `<svg class="hover:fill-green-600" data-bearbeitungsid="${menu.id}" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"  fill="#4ADE80"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>`;
-          }
-
-          if(plusBtn.classList.contains(`plus-btn-${zutatenBearbeitenId}`) && minusBtn.classList.contains(`minus-btn-${zutatenBearbeitenId}`)) {
-            plusBtn.classList.remove('hidden');
-            minusBtn.classList.remove('hidden');
-            plusBtn.classList.add('inline-block');
-            minusBtn.classList.add('inline-block');
-
-          } else {
-            plusBtn.classList.add('hidden')
-            minusBtn.classList.add('hidden')
-            zutatenListeContainer.classList.add('flex');
-          }   
-        });
-        weitereZutatenBtn.classList.remove('hidden')
-        weitereZutatenBtn.classList.add('block');
-
-      } else if (menu.zutaten.length <= 0) {
-        zutatenListeContainer.classList.add('flex');
-        zutatenInput.classList.add('block');
-        mengeInput.classList.add('block');
-        zutatenBearbeitungsBtn.classList.add('hidden');
       }
     });
 
-    //alle eventlisteners für die inputs und einen teil der btns
-    const menuInputs = document.querySelectorAll('.menu-name-container input');
-    const zutatenInputs = document.querySelectorAll('.menu-zutaten-container .input-container input');
-    const mengeInputs = document.querySelectorAll('.menu-zutaten-container .input-container input:nth-child(2)');
-    const weitereZutatenBtns = document.querySelectorAll('.weitere-zutaten');
-    const bearbeitungsBtns = document.querySelectorAll('.menu-bearbeitungs-btn');
-
-    menuInputs.forEach(input => {
-      input.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-          addMenuToMenus(event);
-        } 
-      });
+    document.addEventListener('keypress', (event) => {
+      if (event.target.classList.contains('menu-name-input') && event.key === 'Enter') {
+        this.addMenuToMenus(event);
+      } else if (event.target.classList.contains('zutaten-input') && event.key === 'Enter') {
+        this.addZutatenToMenus(event);
+      } else if (event.target.classList.contains('menge-input') && event.key === 'Enter') {
+        this.addMengeToMenus(event);
+      }
     });
-
-    zutatenInputs.forEach(input => {
-      input.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-          addZutatenToMenus(event);
-        }
-      });
-    });
-
-    mengeInputs.forEach(input => {
-      input.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-          addMengeToMenus(event);
-        }
-      });
-    });
-
-    weitereZutatenBtns.forEach(button => {
-      button.addEventListener('click', function(event) {
-        addWeitereZutaten(event);
-      });
-    });
-
-    bearbeitungsBtns.forEach(button => {
-      button.addEventListener('click', function(event) {
-        menuBearbeiten(event);
-      });
-    })
   }
-  renderMenusFromStock();
 }
-  
+
+
+
+export { Menüplan };

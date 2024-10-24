@@ -1,3 +1,3 @@
-import { kreiereMenus } from "./menüplan.js";
+import { Menüplan } from "./menüplan.js";
 
-kreiereMenus('morgenessenMenus')
+const morgenessenMenüplan = new Menüplan('morgenessenMenüs')
