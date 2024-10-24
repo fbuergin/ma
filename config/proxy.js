@@ -21,8 +21,8 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 
 // Statische Dateien im "public" Verzeichnis servieren
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'node_modules/@google-cloud/translate')));
+app.use(express.static(path.join(__dirname, 'public', 'Bestand.html')));
+//app.use(express.static(path.join(__dirname, 'node_modules/@google-cloud/translate')));
 
 
 // Verwende die cors Middleware

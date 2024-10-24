@@ -2,7 +2,7 @@
 
 export async function fetchSynonyms(suchbegriff) {
   try {
-    const response = await fetch('/synonyms.json');
+    const response = await fetch('/synonyme.json');
     const data = await response.text();
     const synonyms = JSON.parse(data);
     const gefundeneSynonyme = synonyms[suchbegriff.toLowerCase()];
